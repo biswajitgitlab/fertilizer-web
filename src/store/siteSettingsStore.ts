@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { settingsApi } from '../api/settingsApi';
+import { useUIStore } from './uiStore';
 
 export type ThemePalette =
   | 'emerald'
@@ -116,6 +117,9 @@ export const useSiteSettingsStore = create<SiteSettingsState>()(
           if (data.favicon_url)   merged.faviconUrl   = data.favicon_url;
           if (data.primary_color) merged.primaryColor = data.primary_color as ThemePalette;
           if (data.admin_color)   merged.adminColor   = data.admin_color   as ThemePalette;
+          if (data.theme_mode) {
+            useUIStore.getState().setTheme(data.theme_mode as 'light' | 'dark');
+          }
           set((state) => ({ ...state, ...merged }));
           get().applyThemeToDOM();
         } catch (err) {

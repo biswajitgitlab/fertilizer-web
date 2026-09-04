@@ -62,7 +62,6 @@ import { Unauthorized, Forbidden, Unprocessable, NotFound } from './pages/errors
 
 import { useSiteSettingsStore } from './store/siteSettingsStore';
 import { useUIStore } from './store/uiStore';
-import { settingsApi } from './api/settingsApi';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -91,18 +90,8 @@ const LayoutWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 
   React.useEffect(() => {
     useSiteSettingsStore.getState().applyThemeToDOM(location.pathname);
-    // Load all settings (branding + theme) from DB on every app mount
-    useSiteSettingsStore.getState().loadFromDB().then(async () => {
-      try {
-        // Sync theme_mode from DB (dark/light cross-device sync)
-        const data = await settingsApi.getPublic();
-        if (data.theme_mode) {
-          useUIStore.getState().setTheme(data.theme_mode);
-        }
-      } catch {
-        // fallback: localStorage already applied
-      }
-    });
+    // Load all settings (branding + theme) from DB on app boot
+    useSiteSettingsStore.getState().loadFromDB();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
