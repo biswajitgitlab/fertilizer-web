@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { AdminLayout } from '../../components/admin/AdminLayout';
 import { apiClient as api } from '../../api/axiosInstances';
 import { Shield, AlertTriangle, Lock, Search, RefreshCw, Eye } from 'lucide-react';
+import { Loader } from '../../components/common/Loader';
 
 const AuditLogs: React.FC = () => {
   const [logs, setLogs] = useState<any[]>([]);
@@ -42,7 +43,7 @@ const AuditLogs: React.FC = () => {
           </div>
           <button
             onClick={fetchLogs}
-            className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition shadow-sm self-start sm:self-auto"
+            className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition shadow-sm self-start sm:self-auto cursor-pointer"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
             Refresh Logs
@@ -65,7 +66,7 @@ const AuditLogs: React.FC = () => {
           <select
             value={riskFilter}
             onChange={(e) => setRiskFilter(e.target.value)}
-            className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
           >
             <option value="">All Risk Levels</option>
             <option value="HIGH_SECURITY_ALERT">HIGH_SECURITY_ALERT</option>
@@ -75,8 +76,51 @@ const AuditLogs: React.FC = () => {
           </select>
         </div>
 
-        {/* Table */}
-        <div className="bg-white/90 dark:bg-slate-900/60 backdrop-blur-md rounded-3xl border border-slate-200/80 dark:border-slate-800/80 overflow-hidden shadow-sm">
+        {/* Mobile View: Cards (Visible on screens < md) */}
+        <div className="md:hidden space-y-3">
+          {loading ? (
+            <div className="bg-white/90 dark:bg-slate-900/60 p-8 rounded-3xl text-center border border-slate-200/80 dark:border-slate-800/80">
+              <Loader text="Auditing Security Trail..." subtext="Syncing access policy compliance logs" variant="table" />
+            </div>
+          ) : logs.length === 0 ? (
+            <div className="bg-white/90 dark:bg-slate-900/60 p-8 rounded-3xl text-center text-slate-400 font-medium border border-slate-200/80 dark:border-slate-800/80">
+              No audit logs found.
+            </div>
+          ) : (
+            logs.map((log: any, i: number) => (
+              <div
+                key={i}
+                className="bg-white/90 dark:bg-slate-900/60 backdrop-blur-md p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 space-y-2.5 text-xs shadow-xs"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-slate-900 dark:text-white">
+                    {log.user ? log.user.name : log.admin_name || 'System Sentinel'}
+                  </span>
+                  <span className={`text-[10px] font-black px-2.5 py-0.5 rounded-full ${
+                    log.risk_level === 'HIGH_SECURITY_ALERT' || log.risk_level === 'CRITICAL_ACTION'
+                      ? 'bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 border border-rose-300'
+                      : 'bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300'
+                  }`}>
+                    {log.risk_level}
+                  </span>
+                </div>
+
+                <div className="space-y-1">
+                  <p className="font-mono font-bold text-emerald-600 dark:text-emerald-400">{log.action}</p>
+                  <p className="font-mono text-[11px] text-slate-600 dark:text-slate-300">Target: {log.target}</p>
+                </div>
+
+                <div className="flex items-center justify-between text-[11px] text-slate-400 pt-2 border-t border-slate-100 dark:border-slate-800/60 font-mono">
+                  <span>{log.created_at || log.timestamp}</span>
+                  <span>IP: {log.ip_address}</span>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Desktop Table View (Visible on screens >= md) */}
+        <div className="hidden md:block bg-white/90 dark:bg-slate-900/60 backdrop-blur-md rounded-3xl border border-slate-200/80 dark:border-slate-800/80 overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse min-w-[700px]">
               <thead>
@@ -92,7 +136,9 @@ const AuditLogs: React.FC = () => {
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50 text-xs text-slate-800 dark:text-slate-200">
                 {loading ? (
                   <tr>
-                    <td colSpan={6} className="py-8 text-center text-slate-400 font-medium">Loading audit trail...</td>
+                    <td colSpan={6} className="py-8 text-center text-slate-400 font-medium">
+                      <Loader text="Auditing Security Trail..." subtext="Syncing access policy compliance logs" variant="table" />
+                    </td>
                   </tr>
                 ) : logs.length === 0 ? (
                   <tr>

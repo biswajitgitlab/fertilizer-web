@@ -276,8 +276,92 @@ export const Batches: React.FC = () => {
           </div>
         </div>
 
-        {/* Batch Table */}
-        <div className="bg-white/90 dark:bg-slate-900/60 backdrop-blur-md rounded-3xl border border-slate-200/80 dark:border-slate-800/80 overflow-hidden shadow-sm">
+        {/* Mobile View: FEFO Lot Cards (Visible on screens < md) */}
+        <div className="md:hidden space-y-3">
+          {loading ? (
+            <div className="bg-white/90 dark:bg-slate-900/60 p-8 rounded-3xl text-center border border-slate-200/80 dark:border-slate-800/80">
+              <Loader text="Auditing FEFO Product Batches..." subtext="Syncing lot expiration horizons & moisture parameters" variant="table" />
+            </div>
+          ) : batches.length === 0 ? (
+            <div className="bg-white/90 dark:bg-slate-900/60 p-8 rounded-3xl text-center text-slate-400 font-medium border border-slate-200/80 dark:border-slate-800/80">
+              No lot batches found.
+            </div>
+          ) : (
+            batches.map((b: any, i: number) => {
+              const expiryInfo = getExpiryInfo(b.expiry_date);
+              const zoneDisplay = typeof b.warehouse_zone === 'object' && b.warehouse_zone !== null 
+                ? (b.warehouse_zone.code || b.warehouse_zone.name || 'N/A') 
+                : (b.warehouse_zone || 'N/A');
+
+              return (
+                <div
+                  key={i}
+                  className="bg-white/90 dark:bg-slate-900/60 backdrop-blur-md p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 space-y-3 text-xs shadow-xs"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono font-bold text-slate-900 dark:text-white text-sm">{b.batch_code}</span>
+                    <span className={`text-[10px] font-black px-2.5 py-0.5 rounded-full ${
+                      b.status === 'CRITICAL_EXPIRY_RISK' || b.status === 'EXPIRED'
+                        ? 'bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 border border-rose-300'
+                        : b.status === 'FEFO_DISPATCH_PRIORITY'
+                        ? 'bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 border border-amber-300'
+                        : 'bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300'
+                    }`}>
+                      {b.status}
+                    </span>
+                  </div>
+
+                  <div>
+                    <h4 className="font-extrabold text-slate-900 dark:text-white text-sm">{b.product?.name || b.product_name || 'N/A'}</h4>
+                    <p className="text-[11px] font-mono text-slate-500 dark:text-slate-400 mt-0.5">Zone: {zoneDisplay}</p>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 dark:border-slate-800/60">
+                    <div>
+                      <span className="text-[10px] text-slate-400 font-bold uppercase block">Stock Quantity</span>
+                      <span className="font-bold text-slate-900 dark:text-white">{b.stock_qty} Packs</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-400 font-bold uppercase block">Moisture %</span>
+                      <span className="font-mono font-bold text-slate-900 dark:text-white">{b.moisture_pct}%</span>
+                    </div>
+                  </div>
+
+                  <div className="pt-2 border-t border-slate-100 dark:border-slate-800/60 flex items-center justify-between">
+                    <div>
+                      <span className="font-mono text-[11px] text-slate-700 dark:text-slate-300 block font-bold">{b.expiry_date}</span>
+                      <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-md ${expiryInfo.badgeClass}`}>
+                        {expiryInfo.text}
+                      </span>
+                    </div>
+
+                    {canEditBatch ? (
+                      <button
+                        onClick={() => handleOpenEdit(b)}
+                        className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold rounded-xl text-xs transition inline-flex items-center gap-1.5 border border-slate-200 dark:border-slate-700 cursor-pointer"
+                      >
+                        <Edit3 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                        Edit Lot
+                      </button>
+                    ) : (
+                      <button
+                        disabled
+                        title="Requires RBSC permission [inventory.edit]"
+                        className="px-3 py-1.5 bg-slate-100 dark:bg-slate-900 text-slate-400 font-bold rounded-xl text-xs opacity-50 cursor-not-allowed inline-flex items-center gap-1.5 border border-slate-200/50 dark:border-slate-800/50"
+                      >
+                        <Lock className="w-3.5 h-3.5 text-rose-500" />
+                        Locked
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+
+        {/* Desktop Table View (Visible on screens >= md) */}
+        <div className="hidden md:block bg-white/90 dark:bg-slate-900/60 backdrop-blur-md rounded-3xl border border-slate-200/80 dark:border-slate-800/80 overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse min-w-[850px]">
               <thead>

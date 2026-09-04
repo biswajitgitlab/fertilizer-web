@@ -180,8 +180,98 @@ export const Products: React.FC = () => {
           </div>
         </div>
 
-        {/* Products Table */}
-        <div className="bg-white/90 dark:bg-slate-900/60 backdrop-blur-md rounded-3xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm dark:shadow-xl overflow-hidden">
+        {/* Mobile View: Product SKU Cards (Visible on screens < md) */}
+        <div className="md:hidden space-y-3">
+          {isLoading ? (
+            <div className="bg-white/90 dark:bg-slate-900/60 p-8 rounded-3xl text-center border border-slate-200/80 dark:border-slate-800/80">
+              <Loader text="Fetching Product Catalog..." subtext="Syncing inventory SKU metrics & Redis cache" variant="table" />
+            </div>
+          ) : products.length === 0 ? (
+            <div className="bg-white/90 dark:bg-slate-900/60 p-8 rounded-3xl text-center text-slate-400 font-medium border border-slate-200/80 dark:border-slate-800/80">
+              No matching products found in catalog.
+            </div>
+          ) : (
+            products.map((p) => {
+              const categoryName = typeof p.category === 'object' ? p.category?.name : (p.category || 'Fertilizer');
+              const imageSrc = Array.isArray(p.images_json) && p.images_json[0]
+                ? p.images_json[0]
+                : (Array.isArray(p.images) && p.images[0] ? p.images[0] : (typeof p.images === 'string' ? p.images : DEFAULT_PRODUCT_IMG));
+              const stockVal = Number(p.stock_qty ?? p.stock ?? 0);
+
+              return (
+                <div
+                  key={p.id}
+                  className="bg-white/90 dark:bg-slate-900/60 backdrop-blur-md p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 space-y-3 text-xs shadow-xs"
+                >
+                  <div className="flex items-start gap-3">
+                    <img
+                      src={imageSrc}
+                      alt={p.name}
+                      className="w-12 h-12 rounded-xl object-cover bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 shrink-0"
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).src = DEFAULT_PRODUCT_IMG;
+                      }}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-2">
+                        <span className="font-extrabold text-slate-900 dark:text-white text-sm block truncate">{p.name}</span>
+                        <span className="font-black text-emerald-600 dark:text-emerald-400 text-sm shrink-0">
+                          {formatCurrency(p.price)}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Category: {categoryName} • Unit: {p.unit || 'Pack'}</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 dark:border-slate-800/60 items-center">
+                    <div>
+                      <span className="text-[10px] text-slate-400 uppercase font-bold block">Stock Balance</span>
+                      <span className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold border mt-0.5 ${
+                        stockVal > 10
+                          ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
+                          : 'bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-500/20'
+                      }`}>
+                        {stockVal} units
+                      </span>
+                    </div>
+
+                    <div>
+                      <span className="text-[10px] text-slate-400 uppercase font-bold block">NPK Ratio</span>
+                      <span className="font-bold text-emerald-600 dark:text-emerald-400">
+                        {p.npk ? `${p.npk.n}:${p.npk.p}:${p.npk.k}` : 'NPK Standard'}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800/60">
+                    <Link
+                      to={`/admin/products/edit/${p.id}`}
+                      className={`px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5 ${isAnyActionLoading ? 'pointer-events-none opacity-50' : ''}`}
+                    >
+                      <Edit2 className="w-3.5 h-3.5" />
+                      Edit SKU
+                    </Link>
+                    <button
+                      onClick={() => handleDelete(String(p.id), p.name)}
+                      disabled={isAnyActionLoading}
+                      className="px-3 py-1.5 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 text-rose-600 dark:text-rose-400 rounded-lg text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
+                    >
+                      {deletingId === String(p.id) ? (
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin text-rose-500" />
+                      ) : (
+                        <Trash2 className="w-3.5 h-3.5" />
+                      )}
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+
+        {/* Desktop Table View (Visible on screens >= md) */}
+        <div className="hidden md:block bg-white/90 dark:bg-slate-900/60 backdrop-blur-md rounded-3xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm dark:shadow-xl overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse min-w-[750px]">
               <thead>

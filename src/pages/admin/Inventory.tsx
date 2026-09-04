@@ -119,8 +119,68 @@ export const Inventory: React.FC = () => {
           </div>
         </div>
 
-        {/* Inventory Table */}
-        <div className="bg-white/90 dark:bg-slate-900/60 backdrop-blur-md rounded-3xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm dark:shadow-xl overflow-hidden">
+        {/* Mobile View: Inventory Stock Cards (Visible on screens < md) */}
+        <div className="md:hidden space-y-3">
+          {isLoading ? (
+            <div className="bg-white/90 dark:bg-slate-900/60 p-8 rounded-3xl text-center border border-slate-200/80 dark:border-slate-800/80">
+              <Loader text="Auditing Warehouse Inventory..." subtext="Syncing SKU batch balances & stock limits" variant="table" />
+            </div>
+          ) : products.length === 0 ? (
+            <div className="bg-white/90 dark:bg-slate-900/60 p-8 rounded-3xl text-center text-slate-400 font-medium border border-slate-200/80 dark:border-slate-800/80">
+              No products found in inventory.
+            </div>
+          ) : (
+            products.map((p) => {
+              const imgUrl = Array.isArray(p.images) && p.images[0] ? p.images[0] : (typeof p.images === 'string' ? p.images : DEFAULT_PRODUCT_IMG);
+              return (
+                <div
+                  key={p.id}
+                  className="bg-white/90 dark:bg-slate-900/60 backdrop-blur-md p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 space-y-3 text-xs shadow-xs"
+                >
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={imgUrl}
+                      alt={p.name}
+                      className="w-12 h-12 rounded-xl object-cover bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 shrink-0"
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).src = DEFAULT_PRODUCT_IMG;
+                      }}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <span className="font-extrabold text-slate-900 dark:text-white text-sm block truncate">{p.name}</span>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{p.category} • {p.unit}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800/60">
+                    <div>
+                      <span className="text-[10px] text-slate-400 uppercase font-bold block">Catalog Stock</span>
+                      <span className={`px-3 py-0.5 rounded-full text-xs font-black border mt-0.5 inline-block ${
+                        p.stock > 10
+                          ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
+                          : 'bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-500/20 inline-flex items-center gap-1'
+                      }`}>
+                        {p.stock <= 10 && <AlertTriangle className="w-3.5 h-3.5 text-rose-500" />}
+                        {p.stock} Units
+                      </span>
+                    </div>
+
+                    <Link 
+                      to="/admin/batches" 
+                      className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs shadow-sm hover:shadow-md transition-all cursor-pointer"
+                    >
+                      <Boxes className="w-3.5 h-3.5" />
+                      Manage Batches
+                    </Link>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+
+        {/* Desktop Table View (Visible on screens >= md) */}
+        <div className="hidden md:block bg-white/90 dark:bg-slate-900/60 backdrop-blur-md rounded-3xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm dark:shadow-xl overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse min-w-[700px]">
               <thead>
