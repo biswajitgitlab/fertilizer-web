@@ -1,5 +1,4 @@
 import React from 'react';
-import { motion } from 'motion/react';
 import { Sprout, RefreshCw, Cpu } from 'lucide-react';
 import { useSiteSettingsStore } from '../../store/siteSettingsStore';
 
@@ -25,30 +24,17 @@ export const Loader: React.FC<LoaderProps> = ({
   const spinnerGraphic = (
     <div className="relative flex items-center justify-center w-16 h-16 shrink-0">
       {/* Outer Orbiting Gradient Ring */}
-      <motion.div
-        className="absolute inset-0 rounded-full border-2 border-transparent border-t-emerald-500 border-r-teal-400 border-b-cyan-500"
-        animate={{ rotate: 360 }}
-        transition={{ repeat: Infinity, duration: 1.2, ease: "linear" }}
-      />
+      <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-emerald-500 border-r-teal-400 border-b-cyan-500 animate-spin" />
 
-      {/* Inner Counter-Rotating Pulse Ring */}
-      <motion.div
-        className="absolute inset-2 rounded-full border-2 border-transparent border-t-emerald-400/50 border-l-emerald-300"
-        animate={{ rotate: -360 }}
-        transition={{ repeat: Infinity, duration: 1.8, ease: "linear" }}
-      />
+      {/* Inner Counter-Rotating Ring */}
+      <div className="absolute inset-2 rounded-full border-2 border-transparent border-t-emerald-400/50 border-l-emerald-300 animate-[spin_1.5s_linear_infinite_reverse]" />
 
       {/* Glowing Backdrop Ambient Light */}
       <div className="absolute inset-3 bg-emerald-500/20 dark:bg-emerald-400/20 rounded-full blur-md animate-pulse" />
 
       {/* Center Icon Badge */}
       <div className="relative z-10 w-9 h-9 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center shadow-lg shadow-emerald-500/30">
-        <motion.div
-          animate={{ scale: [0.9, 1.1, 0.9] }}
-          transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-        >
-          <Sprout className="w-5 h-5 text-white" />
-        </motion.div>
+        <Sprout className="w-5 h-5 text-white animate-pulse" />
       </div>
     </div>
   );
