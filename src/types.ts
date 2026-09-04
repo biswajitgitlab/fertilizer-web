@@ -24,6 +24,8 @@ export interface Product {
   suitableCrops: string[];
   shortDescription: string;
   description: string;
+  composition?: string;
+  dosage?: string;
   usageInstructions: string;
   sku: string;
   weight?: string;

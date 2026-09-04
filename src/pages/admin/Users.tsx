@@ -210,19 +210,27 @@ export const UsersPage: React.FC = () => {
     }
   };
 
+  const [fetchingDetailId, setFetchingDetailId] = useState<number | null>(null);
+  const [fetchingRbscId, setFetchingRbscId] = useState<number | null>(null);
+  const [deletingUserId, setDeletingUserId] = useState<number | null>(null);
+
   const handleViewDetails = async (user: StaffRecord) => {
+    setFetchingDetailId(user.id);
     try {
       const data = await adminApi.getUserDetails(user.id);
       setUserDetailData(data);
       setShowDetailModal(true);
     } catch (e) {
       toast.error("Failed to load staff details.");
+    } finally {
+      setFetchingDetailId(null);
     }
   };
 
   const handleOpenRbscModal = async (user: StaffRecord) => {
     setRbscUser(user);
     setRbscRole(user.role || 'Admin');
+    setFetchingRbscId(user.id);
     try {
       const [details, perms] = await Promise.all([
         adminApi.getUserDetails(user.id),
@@ -234,6 +242,8 @@ export const UsersPage: React.FC = () => {
       setShowRbscModal(true);
     } catch (e) {
       toast.error("Failed to load user permissions matrix.");
+    } finally {
+      setFetchingRbscId(null);
     }
   };
 
@@ -259,6 +269,7 @@ export const UsersPage: React.FC = () => {
   const handleDeleteUser = async (user: StaffRecord) => {
     if (!window.confirm(`Are you sure you want to revoke and delete staff account for "${user.name}"?`)) return;
 
+    setDeletingUserId(user.id);
     try {
       await adminApi.deleteUser(user.id);
       toast.success(`Staff account for ${user.name} deleted.`);
@@ -266,6 +277,8 @@ export const UsersPage: React.FC = () => {
     } catch (e: any) {
       const msg = e?.response?.data?.message || "Failed to delete staff account.";
       toast.error(msg);
+    } finally {
+      setDeletingUserId(null);
     }
   };
 
@@ -550,10 +563,15 @@ export const UsersPage: React.FC = () => {
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => handleViewDetails(user)}
-                        className="py-1.5 px-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:text-emerald-500 font-bold text-xs flex items-center gap-1 cursor-pointer"
+                        disabled={fetchingDetailId === user.id}
+                        className="py-1.5 px-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:text-emerald-500 font-bold text-xs flex items-center gap-1 cursor-pointer disabled:opacity-50"
                         title="Inspect Capabilities"
                       >
-                        <Eye className="w-3.5 h-3.5 text-emerald-500" />
+                        {fetchingDetailId === user.id ? (
+                          <RefreshCw className="w-3.5 h-3.5 animate-spin text-emerald-500" />
+                        ) : (
+                          <Eye className="w-3.5 h-3.5 text-emerald-500" />
+                        )}
                         <span>Inspect</span>
                       </button>
                       <button
@@ -565,10 +583,15 @@ export const UsersPage: React.FC = () => {
                       </button>
                       <button
                         onClick={() => handleDeleteUser(user)}
-                        className="p-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-rose-500 hover:bg-rose-50 cursor-pointer"
+                        disabled={deletingUserId === user.id}
+                        className="p-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-rose-500 hover:bg-rose-50 cursor-pointer disabled:opacity-50"
                         title="Delete Account"
                       >
-                        <Trash2 className="w-3.5 h-3.5" />
+                        {deletingUserId === user.id ? (
+                          <RefreshCw className="w-3.5 h-3.5 animate-spin text-rose-500" />
+                        ) : (
+                          <Trash2 className="w-3.5 h-3.5" />
+                        )}
                       </button>
                     </div>
                   </div>
@@ -672,18 +695,28 @@ export const UsersPage: React.FC = () => {
                           {isSuperAdminOrAdmin && (
                             <button
                               onClick={() => handleOpenRbscModal(user)}
-                              className="p-1.5 rounded-lg bg-emerald-500/10 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-600 hover:text-white dark:hover:bg-emerald-600 dark:hover:text-white cursor-pointer transition-all border border-emerald-300 dark:border-emerald-800"
+                              disabled={fetchingRbscId === user.id}
+                              className="p-1.5 rounded-lg bg-emerald-500/10 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-600 hover:text-white dark:hover:bg-emerald-600 dark:hover:text-white cursor-pointer transition-all border border-emerald-300 dark:border-emerald-800 disabled:opacity-50"
                               title="Edit Role & RBSC Permissions Matrix"
                             >
-                              <Sliders className="w-3.5 h-3.5" />
+                              {fetchingRbscId === user.id ? (
+                                <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                              ) : (
+                                <Sliders className="w-3.5 h-3.5" />
+                              )}
                             </button>
                           )}
                           <button
                             onClick={() => handleViewDetails(user)}
-                            className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 cursor-pointer"
+                            disabled={fetchingDetailId === user.id}
+                            className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 cursor-pointer disabled:opacity-50"
                             title="Inspect Staff Capabilities"
                           >
-                            <Eye className="w-3.5 h-3.5" />
+                            {fetchingDetailId === user.id ? (
+                              <RefreshCw className="w-3.5 h-3.5 animate-spin text-emerald-500" />
+                            ) : (
+                              <Eye className="w-3.5 h-3.5" />
+                            )}
                           </button>
                           {isSuperAdminOrAdmin && (
                             <>
@@ -696,10 +729,15 @@ export const UsersPage: React.FC = () => {
                               </button>
                               <button
                                 onClick={() => handleDeleteUser(user)}
-                                className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-rose-600 dark:hover:text-rose-400 cursor-pointer"
+                                disabled={deletingUserId === user.id}
+                                className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-rose-600 dark:hover:text-rose-400 cursor-pointer disabled:opacity-50"
                                 title="Revoke & Delete Staff Account"
                               >
-                                <Trash2 className="w-3.5 h-3.5" />
+                                {deletingUserId === user.id ? (
+                                  <RefreshCw className="w-3.5 h-3.5 animate-spin text-rose-500" />
+                                ) : (
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                )}
                               </button>
                             </>
                           )}

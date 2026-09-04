@@ -4,12 +4,12 @@ import { Star } from 'lucide-react';
 interface RatingStarsProps {
   rating: number;
   count?: number;
-  size?: 'sm' | 'md';
+  size?: 'sm' | 'md' | 'lg';
   compact?: boolean;
 }
 
 export const RatingStars: React.FC<RatingStarsProps> = ({ rating = 0, count = 0, size = 'sm', compact = false }) => {
-  const iconSize = size === 'sm' ? 'w-3.5 h-3.5' : 'w-4 h-4';
+  const iconSize = size === 'lg' ? 'w-5 h-5' : size === 'md' ? 'w-4 h-4' : 'w-3.5 h-3.5';
   const numRating = Number(rating) || 0;
   const numCount = Number(count) || 0;
   const displayRating = numRating > 0 ? numRating.toFixed(1) : '0.0';
