@@ -46,14 +46,22 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
   const quickActionRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  // Fetch real backend RBSC notifications
-  const loadNotifications = async () => {
+  // Ref for smart throttling across header remounts during page navigation
+  const lastFetchRef = useRef<number>(0);
+
+  // Fetch real backend RBSC notifications with smart throttling
+  const loadNotifications = async (force: boolean = false) => {
+    const now = Date.now();
+    if (!force && lastFetchRef.current > 0 && (now - lastFetchRef.current < 30000)) {
+      return;
+    }
     setLoadingNotifications(true);
     try {
       const data = await adminApi.getNotifications();
       if (data && Array.isArray(data.notifications)) {
         setNotifications(data.notifications);
         setUnreadCount(data.unread_count ?? data.notifications.filter((n: any) => n.unread).length);
+        lastFetchRef.current = Date.now();
       }
     } catch (e) {
       console.warn("Failed to load notifications:", e);
@@ -62,17 +70,17 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
     }
   };
 
-  // Initial load and periodic 30s auto-polling for live real notifications
+  // Initial load and periodic 60s auto-polling for live real notifications
   useEffect(() => {
     loadNotifications();
-    const interval = setInterval(loadNotifications, 30000);
+    const interval = setInterval(() => loadNotifications(true), 60000);
     return () => clearInterval(interval);
   }, []);
 
   // Reload notifications when dropdown opens
   useEffect(() => {
     if (notificationsOpen) {
-      loadNotifications();
+      loadNotifications(true);
     }
   }, [notificationsOpen]);
 
