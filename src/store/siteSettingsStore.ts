@@ -64,7 +64,7 @@ const DEFAULT_SETTINGS: SiteSettings = {
   appTagline: 'Govt Certified Agri Store',
   logoUrl: '/logo.png',
   darkLogoUrl: '/logo.png',
-  faviconUrl: '/favicon.ico',
+  faviconUrl: '/favicon.svg',
   primaryColor: 'emerald',
   adminColor: 'indigo',
 };

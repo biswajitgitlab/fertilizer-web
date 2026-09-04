@@ -344,7 +344,14 @@ export const AdminSettings: React.FC = () => {
                     <span className="text-emerald-600 dark:text-emerald-400 font-mono text-[10px]">Auto-Fit Applied</span>
                   </div>
                   <div className="h-16 rounded-xl bg-slate-900 p-2 flex items-center justify-center border border-slate-800">
-                    <img src={logoUrl || '/logo.png'} alt="Logo Preview" className="max-h-full max-w-full object-contain" />
+                    <img
+                      src={logoUrl || '/logo.png'}
+                      alt="Logo Preview"
+                      className="max-h-full max-w-full object-contain"
+                      onError={(e) => {
+                        e.currentTarget.src = '/logo.svg';
+                      }}
+                    />
                   </div>
                 </div>
               </div>
@@ -393,7 +400,7 @@ export const AdminSettings: React.FC = () => {
                     type="text"
                     value={faviconUrl}
                     onChange={(e) => setFaviconUrl(e.target.value)}
-                    placeholder="/favicon.ico or https://domain.com/favicon.png"
+                    placeholder="/favicon.svg or https://domain.com/favicon.png"
                     className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white text-xs font-mono focus:ring-2 focus:ring-emerald-500 focus:outline-hidden"
                   />
                 </div>
@@ -405,7 +412,14 @@ export const AdminSettings: React.FC = () => {
                     <span className="text-emerald-600 dark:text-emerald-400 font-mono text-[10px]">64x64 Square</span>
                   </div>
                   <div className="h-10 rounded-xl bg-slate-200 dark:bg-slate-900 px-3 flex items-center gap-2 border border-slate-300 dark:border-slate-800">
-                    <img src={faviconUrl || '/favicon.ico'} alt="Favicon Tab Preview" className="w-5 h-5 object-contain" />
+                    <img
+                      src={faviconUrl || '/favicon.ico'}
+                      alt="Favicon Tab Preview"
+                      className="w-5 h-5 object-contain"
+                      onError={(e) => {
+                        e.currentTarget.src = '/favicon.svg';
+                      }}
+                    />
                     <span className="text-xs font-bold text-slate-700 dark:text-slate-300 truncate max-w-[180px]">{appName || 'App Name'}</span>
                   </div>
                 </div>
