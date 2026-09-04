@@ -19,6 +19,7 @@ import {
   Activity, DollarSign, Search, Filter,
   Building, Layers, ShieldAlert, Cpu, ChevronLeft, ChevronRight, X
 } from 'lucide-react';
+import { Loader } from '../../components/common/Loader';
 import toast from 'react-hot-toast';
 
 export const Reports: React.FC = () => {
@@ -825,14 +826,7 @@ export const Reports: React.FC = () => {
 
 // Shimmer Skeleton Loader Component
 const ReportSkeletonLoader: React.FC = () => (
-  <div className="space-y-6 animate-pulse">
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-      <div className="h-24 bg-slate-200 dark:bg-slate-800/60 rounded-2xl"></div>
-      <div className="h-24 bg-slate-200 dark:bg-slate-800/60 rounded-2xl"></div>
-      <div className="h-24 bg-slate-200 dark:bg-slate-800/60 rounded-2xl"></div>
-    </div>
-    <div className="h-64 bg-slate-200 dark:bg-slate-800/60 rounded-3xl"></div>
-  </div>
+  <Loader text="Compiling Enterprise Audit Ledger..." subtext="Syncing RBSC permissions & Redis cached analytics" variant="table" />
 );
 
 // Forbidden RBSC Guard Component

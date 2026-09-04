@@ -7,6 +7,7 @@ import {
   PackageCheck, Plus, RefreshCw, Warehouse, Save, X, Lock, Edit3,
   Search, Filter, ChevronLeft, ChevronRight, Cpu
 } from 'lucide-react';
+import { Loader } from '../../components/common/Loader';
 import toast from 'react-hot-toast';
 
 export const Batches: React.FC = () => {
@@ -293,18 +294,11 @@ export const Batches: React.FC = () => {
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50 text-xs text-slate-800 dark:text-slate-200">
                 {loading ? (
-                  Array.from({ length: 5 }).map((_, idx) => (
-                    <tr key={idx} className="animate-pulse">
-                      <td className="py-3.5 px-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-24"></div></td>
-                      <td className="py-3.5 px-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-40"></div></td>
-                      <td className="py-3.5 px-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-20"></div></td>
-                      <td className="py-3.5 px-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-16"></div></td>
-                      <td className="py-3.5 px-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-28"></div></td>
-                      <td className="py-3.5 px-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-12"></div></td>
-                      <td className="py-3.5 px-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-24"></div></td>
-                      <td className="py-3.5 px-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-16 ml-auto"></div></td>
-                    </tr>
-                  ))
+                  <tr>
+                    <td colSpan={8} className="py-8 text-center">
+                      <Loader text="Auditing FEFO Product Batches..." subtext="Syncing lot expiration horizons & moisture parameters" variant="table" />
+                    </td>
+                  </tr>
                 ) : batches.length === 0 ? (
                   <tr>
                     <td colSpan={8} className="py-8 text-center text-slate-400 font-medium">No lot batches found.</td>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { AdminLayout } from '../../components/admin/AdminLayout';
 import { apiClient as api } from '../../api/axiosInstances';
 import { Landmark, CheckCircle, RefreshCw, Search, Filter, ChevronLeft, ChevronRight, Zap, AlertCircle } from 'lucide-react';
+import { Loader } from '../../components/common/Loader';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../../store/authStore';
 
@@ -206,16 +207,11 @@ export const Settlements: React.FC = () => {
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50 text-xs text-slate-800 dark:text-slate-200">
                 {loading ? (
-                  Array.from({ length: perPage }).map((_, idx) => (
-                    <tr key={idx} className="animate-pulse">
-                      <td className="py-4 px-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-16"></div></td>
-                      <td className="py-4 px-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-28"></div></td>
-                      <td className="py-4 px-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-24"></div></td>
-                      <td className="py-4 px-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-20"></div></td>
-                      <td className="py-4 px-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-24"></div></td>
-                      <td className="py-4 px-4 text-right"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-20 ml-auto"></div></td>
-                    </tr>
-                  ))
+                  <tr>
+                    <td colSpan={6} className="py-8 text-center">
+                      <Loader text="Auditing Field Cash Settlements..." subtext="Syncing COD driver collections & bank ledger" variant="table" />
+                    </td>
+                  </tr>
                 ) : settlements.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="py-12 text-center text-slate-400 font-medium">

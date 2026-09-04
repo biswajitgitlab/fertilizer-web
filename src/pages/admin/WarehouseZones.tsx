@@ -5,6 +5,7 @@ import {
   Warehouse, Plus, Search, Edit2, Trash2, Thermometer, Box, RefreshCw, X, Save,
   ChevronLeft, ChevronRight, Cpu
 } from 'lucide-react';
+import { Loader } from '../../components/common/Loader';
 import toast from 'react-hot-toast';
 
 export const WarehouseZones: React.FC = () => {
@@ -206,17 +207,11 @@ export const WarehouseZones: React.FC = () => {
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50 text-xs text-slate-800 dark:text-slate-200">
                 {loading ? (
-                  Array.from({ length: 4 }).map((_, idx) => (
-                    <tr key={idx} className="animate-pulse">
-                      <td className="py-3.5 px-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-20"></div></td>
-                      <td className="py-3.5 px-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-36"></div></td>
-                      <td className="py-3.5 px-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-28"></div></td>
-                      <td className="py-3.5 px-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-24"></div></td>
-                      <td className="py-3.5 px-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-20"></div></td>
-                      <td className="py-3.5 px-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-16"></div></td>
-                      <td className="py-3.5 px-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-12 ml-auto"></div></td>
-                    </tr>
-                  ))
+                  <tr>
+                    <td colSpan={7} className="py-8 text-center">
+                      <Loader text="Auditing Warehouse Storage Zones..." subtext="Syncing bay climate parameters & active batch counts" variant="table" />
+                    </td>
+                  </tr>
                 ) : zones.length === 0 ? (
                   <tr>
                     <td colSpan={7} className="py-8 text-center text-slate-400 font-medium">No storage zones found.</td>

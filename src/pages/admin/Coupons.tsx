@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { AdminLayout } from '../../components/admin/AdminLayout';
 import { Tag, Trash2, UserCheck, Search, X, ChevronLeft, ChevronRight, Cpu, RefreshCw } from 'lucide-react';
 import { apiClient } from '../../api/axiosInstances';
+import { Loader } from '../../components/common/Loader';
 import toast from 'react-hot-toast';
 
 interface CouponItem {
@@ -249,7 +250,7 @@ export const Coupons: React.FC = () => {
         {/* Coupons List */}
         <div className="space-y-3">
           {isLoading ? (
-            <div className="p-8 text-center text-xs text-slate-500 animate-pulse">Loading coupons roster...</div>
+            <Loader text="Loading Coupon Directory..." subtext="Syncing promo token discounts & user eligibility" variant="card" />
           ) : coupons.length === 0 ? (
             <div className="p-8 text-center text-xs text-slate-500 dark:text-slate-400 bg-white/90 dark:bg-slate-900/60 rounded-3xl border border-slate-200 dark:border-slate-800">No active coupons found.</div>
           ) : (

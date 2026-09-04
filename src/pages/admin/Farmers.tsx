@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { AdminLayout } from '../../components/admin/AdminLayout';
 import { apiClient as api } from '../../api/axiosInstances';
 import { UserCheck, RefreshCw, CheckCircle2, Search, Zap, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Loader } from '../../components/common/Loader';
 import toast from 'react-hot-toast';
 
 export const Farmers: React.FC = () => {
@@ -198,16 +199,11 @@ export const Farmers: React.FC = () => {
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50 text-xs text-slate-800 dark:text-slate-200">
                 {loading ? (
-                  Array.from({ length: perPage }).map((_, idx) => (
-                    <tr key={idx} className="animate-pulse">
-                      <td className="py-4 px-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-28"></div></td>
-                      <td className="py-4 px-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-32"></div></td>
-                      <td className="py-4 px-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-24"></div></td>
-                      <td className="py-4 px-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-28"></div></td>
-                      <td className="py-4 px-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-24"></div></td>
-                      <td className="py-4 px-4 text-right"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-20 ml-auto"></div></td>
-                    </tr>
-                  ))
+                  <tr>
+                    <td colSpan={6} className="py-8 text-center">
+                      <Loader text="Fetching Farmer KCC Registry..." subtext="Syncing Aadhaar hashes & PM-PRANAM subsidy tiers" variant="table" />
+                    </td>
+                  </tr>
                 ) : farmers.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="py-12 text-center text-slate-400 font-medium">
