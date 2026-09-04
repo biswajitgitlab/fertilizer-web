@@ -88,6 +88,29 @@
   img {
     transition: opacity 0.2s ease-in-out;
   }
+
+  /* Hardware Accelerated GPU Compositing Hints for Ultra-Smooth 60fps Scrolling */
+  .fixed,
+  .sticky,
+  header,
+  [class*="backdrop-blur"] {
+    transform: translateZ(0);
+    will-change: transform;
+    backface-visibility: hidden;
+  }
+
+  /* Skip off-screen layout/paint rendering work until scrolled into view */
+  section {
+    content-visibility: auto;
+    contain-intrinsic-size: 1px 500px;
+  }
+
+  /* Exclude top header, hero, and continuous tickers from content-visibility deferred paint */
+  header,
+  #hero,
+  .animate-marquee {
+    content-visibility: visible !important;
+  }
 }
 
 @layer utilities {

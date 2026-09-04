@@ -113,7 +113,7 @@ export const ChatWidget: React.FC = () => {
               <AnimatedCropDoctor size={24} className="text-white" />
               <span className="absolute -top-1 -right-1 w-3 h-3 bg-amber-400 border-2 border-emerald-600 rounded-full animate-ping" />
             </div>
-            <span className="text-xs font-bold pr-1 hidden sm:inline">Ask KrishiMitra AI</span>
+            <span className="text-[11px] sm:text-xs font-bold pr-1 inline-block">Ask KrishiMitra AI</span>
           </motion.button>
         )}
       </AnimatePresence>

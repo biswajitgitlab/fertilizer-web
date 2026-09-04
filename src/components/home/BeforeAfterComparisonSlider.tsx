@@ -1,5 +1,4 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Sparkles, 
   ChevronsLeftRight, 
@@ -8,8 +7,7 @@ import {
   ArrowRight,
   Sliders,
   TrendingUp,
-  Leaf,
-  Droplets
+  Leaf
 } from 'lucide-react';
 
 interface ComparisonScenario {
@@ -40,7 +38,7 @@ const COMPARISON_SCENARIOS: ComparisonScenario[] = [
     yieldGain: '+38% Harvest Yield',
     daysToResult: '10-14 Days',
     recommendedProduct: 'Saaf Fungicide + NPK 19:19:19',
-    productLink: '/products?search=fungicide'
+    productLink: '/products?category=pesticides-insecticides'
   },
   {
     id: 'paddy-growth',
@@ -54,7 +52,7 @@ const COMPARISON_SCENARIOS: ComparisonScenario[] = [
     yieldGain: '+42% Tiller Density',
     daysToResult: '12 Days',
     recommendedProduct: 'Bio-Vita Organic Growth Stimulant + Urea',
-    productLink: '/products?search=bio'
+    productLink: '/products?category=organic-bio-fertilizers'
   },
   {
     id: 'cotton-pest',
@@ -68,7 +66,7 @@ const COMPARISON_SCENARIOS: ComparisonScenario[] = [
     yieldGain: '+29% Premium Lint',
     daysToResult: '7 Days',
     recommendedProduct: 'Confidor Insecticide + Chelated Zinc',
-    productLink: '/products?search=confidor'
+    productLink: '/products?category=pesticides-insecticides'
   }
 ];
 
@@ -94,52 +92,57 @@ export const BeforeAfterComparisonSlider: React.FC = () => {
     updateSliderPosition(e.clientX);
   };
 
-  const handleTouchMove = (e: React.TouchEvent) => {
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setIsDragging(true);
     if (e.touches.length > 0) {
       updateSliderPosition(e.touches[0].clientX);
     }
   };
 
   useEffect(() => {
-    const handleGlobalMouseMove = (e: MouseEvent) => {
-      if (isDragging) {
-        updateSliderPosition(e.clientX);
-      }
+    const handleGlobalMove = (e: MouseEvent | TouchEvent) => {
+      if (!isDragging) return;
+      const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+      updateSliderPosition(clientX);
     };
 
-    const handleGlobalMouseUp = () => {
+    const handleGlobalEnd = () => {
       if (isDragging) {
         setIsDragging(false);
       }
     };
 
     if (isDragging) {
-      window.addEventListener('mousemove', handleGlobalMouseMove);
-      window.addEventListener('mouseup', handleGlobalMouseUp);
+      window.addEventListener('mousemove', handleGlobalMove);
+      window.addEventListener('mouseup', handleGlobalEnd);
+      window.addEventListener('touchmove', handleGlobalMove);
+      window.addEventListener('touchend', handleGlobalEnd);
     }
 
     return () => {
-      window.removeEventListener('mousemove', handleGlobalMouseMove);
-      window.removeEventListener('mouseup', handleGlobalMouseUp);
+      window.removeEventListener('mousemove', handleGlobalMove);
+      window.removeEventListener('mouseup', handleGlobalEnd);
+      window.removeEventListener('touchmove', handleGlobalMove);
+      window.removeEventListener('touchend', handleGlobalEnd);
     };
   }, [isDragging, updateSliderPosition]);
 
   return (
-    <section className="w-full py-12 sm:py-16 bg-gradient-to-b from-emerald-950 via-slate-900 to-emerald-950 text-white relative overflow-hidden transition-colors duration-300">
+    <section id="proof" className="w-full py-12 sm:py-16 bg-gradient-to-b from-emerald-950 via-slate-900 to-emerald-950 text-white relative overflow-hidden transition-colors duration-300">
       {/* Background Ambient Glow Blobs */}
-      <div className="absolute top-10 left-10 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-10 right-10 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-10 left-10 w-72 sm:w-96 h-72 sm:h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-10 right-10 w-72 sm:w-96 h-72 sm:h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
 
-      <div className="max-w-[1440px] 2xl:max-w-[1536px] mx-auto px-3 sm:px-6 lg:px-10 space-y-8 relative z-10">
+      <div className="max-w-[1440px] 2xl:max-w-[1536px] mx-auto px-3 sm:px-6 lg:px-10 space-y-6 sm:space-y-8 relative z-10">
         
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-300 px-3.5 py-1.5 rounded-full border border-emerald-500/30 backdrop-blur-md">
+            <div className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-300 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full border border-emerald-500/30 backdrop-blur-md">
               <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
               <span>Visual Proof &amp; Real Field Results</span>
             </div>
-            <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-white">
+            <h2 className="text-xl sm:text-3xl lg:text-4xl font-black tracking-tight text-white leading-tight">
               Interactive Crop Transformation Inspector
             </h2>
             <p className="text-xs sm:text-sm text-slate-300 max-w-xl font-medium leading-relaxed">
@@ -147,8 +150,8 @@ export const BeforeAfterComparisonSlider: React.FC = () => {
             </p>
           </div>
 
-          {/* Scenario Selector Tabs */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none snap-x">
+          {/* Scenario Selector Tabs - Touch Friendly Horizontal Scroll */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none snap-x max-w-full">
             {COMPARISON_SCENARIOS.map((scen) => (
               <button
                 key={scen.id}
@@ -156,9 +159,9 @@ export const BeforeAfterComparisonSlider: React.FC = () => {
                   setActiveScenarioId(scen.id);
                   setSliderPosition(50);
                 }}
-                className={`snap-start px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all duration-200 cursor-pointer border ${
+                className={`snap-start px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all duration-200 cursor-pointer border shrink-0 ${
                   activeScenarioId === scen.id
-                    ? 'bg-emerald-500 text-slate-950 border-emerald-400 shadow-lg shadow-emerald-500/20 scale-105'
+                    ? 'bg-emerald-500 text-slate-950 border-emerald-400 shadow-lg shadow-emerald-500/20 font-black'
                     : 'bg-slate-800/80 text-slate-300 border-slate-700/60 hover:bg-slate-700/80'
                 }`}
               >
@@ -168,16 +171,16 @@ export const BeforeAfterComparisonSlider: React.FC = () => {
           </div>
         </div>
 
-        {/* Preset Quick Buttons */}
-        <div className="flex flex-wrap items-center justify-between gap-3 bg-slate-900/90 border border-slate-800 p-3 rounded-2xl backdrop-blur-xl">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-slate-400 flex items-center gap-1.5">
-              <Sliders className="w-3.5 h-3.5 text-emerald-400" /> Quick View Presets:
+        {/* Preset Quick Buttons & Impact Badges */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-900/90 border border-slate-800 p-3 rounded-2xl backdrop-blur-xl">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs font-bold text-slate-400 flex items-center gap-1.5 shrink-0">
+              <Sliders className="w-3.5 h-3.5 text-emerald-400" /> Presets:
             </span>
             <div className="flex items-center gap-1.5">
               <button
                 onClick={() => setSliderPosition(0)}
-                className={`px-3 py-1 rounded-lg text-xs font-extrabold transition-all ${
+                className={`px-2.5 py-1 rounded-lg text-[11px] sm:text-xs font-black transition-all ${
                   sliderPosition === 0 
                     ? 'bg-rose-500 text-white shadow-md' 
                     : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
@@ -187,7 +190,7 @@ export const BeforeAfterComparisonSlider: React.FC = () => {
               </button>
               <button
                 onClick={() => setSliderPosition(50)}
-                className={`px-3 py-1 rounded-lg text-xs font-extrabold transition-all ${
+                className={`px-2.5 py-1 rounded-lg text-[11px] sm:text-xs font-black transition-all ${
                   sliderPosition === 50 
                     ? 'bg-emerald-500 text-slate-950 shadow-md' 
                     : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
@@ -197,7 +200,7 @@ export const BeforeAfterComparisonSlider: React.FC = () => {
               </button>
               <button
                 onClick={() => setSliderPosition(100)}
-                className={`px-3 py-1 rounded-lg text-xs font-extrabold transition-all ${
+                className={`px-2.5 py-1 rounded-lg text-[11px] sm:text-xs font-black transition-all ${
                   sliderPosition === 100 
                     ? 'bg-teal-400 text-slate-950 shadow-md' 
                     : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
@@ -208,11 +211,11 @@ export const BeforeAfterComparisonSlider: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-3 text-xs font-bold text-emerald-400">
-            <span className="flex items-center gap-1 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20">
+          <div className="flex items-center gap-2 text-xs font-bold text-emerald-400 overflow-x-auto scrollbar-none">
+            <span className="flex items-center gap-1 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20 shrink-0 text-[11px] sm:text-xs">
               <TrendingUp className="w-3.5 h-3.5 text-emerald-400" /> {activeScenario.yieldGain}
             </span>
-            <span className="flex items-center gap-1 bg-teal-500/10 px-2.5 py-1 rounded-lg border border-teal-500/20">
+            <span className="flex items-center gap-1 bg-teal-500/10 px-2.5 py-1 rounded-lg border border-teal-500/20 shrink-0 text-[11px] sm:text-xs">
               <Leaf className="w-3.5 h-3.5 text-teal-400" /> Results in {activeScenario.daysToResult}
             </span>
           </div>
@@ -222,10 +225,8 @@ export const BeforeAfterComparisonSlider: React.FC = () => {
         <div 
           ref={containerRef}
           onMouseDown={handleMouseDown}
-          onTouchMove={handleTouchMove}
-          onTouchStart={() => setIsDragging(true)}
-          onTouchEnd={() => setIsDragging(false)}
-          className="relative w-full h-[380px] sm:h-[480px] md:h-[540px] rounded-3xl overflow-hidden border-2 border-emerald-500/40 shadow-2xl select-none cursor-ew-resize group touch-none"
+          onTouchStart={handleTouchStart}
+          className="relative w-full h-[320px] sm:h-[420px] md:h-[500px] rounded-3xl overflow-hidden border-2 border-emerald-500/40 shadow-2xl select-none cursor-ew-resize group touch-none"
         >
           {/* 1. AFTER IMAGE (Base / Background layer) */}
           <div className="absolute inset-0 w-full h-full">
@@ -236,11 +237,11 @@ export const BeforeAfterComparisonSlider: React.FC = () => {
               loading="eager"
             />
             {/* After Label Badge */}
-            <div className="absolute top-4 right-4 z-10 bg-emerald-950/90 text-emerald-300 border border-emerald-500/40 backdrop-blur-md px-3.5 py-2 rounded-2xl shadow-xl flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+            <div className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10 bg-emerald-950/90 text-emerald-300 border border-emerald-500/40 backdrop-blur-md px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-xl sm:rounded-2xl shadow-xl flex items-center gap-2 max-w-[45%] sm:max-w-xs">
+              <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400 shrink-0" />
               <div>
-                <span className="text-[10px] font-black uppercase text-emerald-400 block tracking-wider">AFTER TREATMENT</span>
-                <span className="text-xs font-bold text-white block">{activeScenario.afterDesc}</span>
+                <span className="text-[9px] sm:text-[10px] font-black uppercase text-emerald-400 block tracking-wider">AFTER</span>
+                <span className="text-[10px] sm:text-xs font-bold text-white block truncate sm:whitespace-normal">{activeScenario.afterDesc}</span>
               </div>
             </div>
           </div>
@@ -259,44 +260,44 @@ export const BeforeAfterComparisonSlider: React.FC = () => {
               loading="eager"
             />
             {/* Before Label Badge */}
-            <div className="absolute top-4 left-4 z-10 bg-slate-950/90 text-rose-300 border border-rose-500/40 backdrop-blur-md px-3.5 py-2 rounded-2xl shadow-xl flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
+            <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-10 bg-slate-950/90 text-rose-300 border border-rose-500/40 backdrop-blur-md px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-xl sm:rounded-2xl shadow-xl flex items-center gap-2 max-w-[45%] sm:max-w-xs">
+              <AlertTriangle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-rose-400 shrink-0" />
               <div>
-                <span className="text-[10px] font-black uppercase text-rose-400 block tracking-wider">BEFORE (UNTREATED)</span>
-                <span className="text-xs font-bold text-white block">{activeScenario.beforeDesc}</span>
+                <span className="text-[9px] sm:text-[10px] font-black uppercase text-rose-400 block tracking-wider">BEFORE</span>
+                <span className="text-[10px] sm:text-xs font-bold text-white block truncate sm:whitespace-normal">{activeScenario.beforeDesc}</span>
               </div>
             </div>
           </div>
 
           {/* 3. INTERACTIVE SLIDER DIVIDER LINE & HANDLE */}
           <div 
-            className="absolute top-0 bottom-0 z-20 w-1 bg-white shadow-[0_0_15px_rgba(255,255,255,0.8)] pointer-events-none transition-shadow duration-150"
+            className="absolute top-0 bottom-0 z-20 w-1 bg-white shadow-[0_0_15px_rgba(255,255,255,0.8)] pointer-events-none"
             style={{ left: `${sliderPosition}%` }}
           >
             {/* Center Slider Knob Handle */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11 h-11 sm:w-13 sm:h-13 bg-slate-950 border-2 border-emerald-400 rounded-full shadow-2xl flex items-center justify-center pointer-events-auto transform hover:scale-110 active:scale-95 transition-transform duration-150">
-              <ChevronsLeftRight className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-400 animate-pulse" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 bg-slate-950 border-2 border-emerald-400 rounded-full shadow-2xl flex items-center justify-center pointer-events-auto transform hover:scale-110 active:scale-95 transition-transform duration-150">
+              <ChevronsLeftRight className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400 animate-pulse" />
               {/* Percentage Indicator Tag */}
-              <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 bg-emerald-500 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded-full shadow-md whitespace-nowrap">
+              <div className="absolute -bottom-7 left-1/2 -translate-x-1/2 bg-emerald-500 text-slate-950 font-black text-[9px] sm:text-[10px] px-2 py-0.5 rounded-full shadow-md whitespace-nowrap">
                 {Math.round(sliderPosition)}%
               </div>
             </div>
           </div>
 
-          {/* Drag instruction overlay for mobile/desktop */}
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 bg-slate-950/80 text-slate-300 border border-slate-700/60 px-4 py-1.5 rounded-full text-xs font-bold backdrop-blur-md shadow-lg pointer-events-none flex items-center gap-2">
-            <ChevronsLeftRight className="w-4 h-4 text-emerald-400" />
+          {/* Drag instruction overlay */}
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 bg-slate-950/80 text-slate-300 border border-slate-700/60 px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold backdrop-blur-md shadow-lg pointer-events-none flex items-center gap-1.5 whitespace-nowrap">
+            <ChevronsLeftRight className="w-3.5 h-3.5 text-emerald-400" />
             <span>Drag slider handle to compare</span>
           </div>
         </div>
 
         {/* Recommended Product CTA Box */}
-        <div className="bg-gradient-to-r from-slate-900 via-emerald-950 to-slate-900 border border-emerald-500/30 rounded-3xl p-5 sm:p-6 flex flex-col sm:flex-row items-center justify-between gap-4 backdrop-blur-xl shadow-xl">
+        <div className="bg-gradient-to-r from-slate-900 via-emerald-950 to-slate-900 border border-emerald-500/30 rounded-3xl p-4 sm:p-6 flex flex-col sm:flex-row items-center justify-between gap-4 backdrop-blur-xl shadow-xl">
           <div className="space-y-1 text-center sm:text-left">
             <span className="text-[10px] font-black uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-md border border-emerald-500/20">
               Recommended Solution
             </span>
-            <h4 className="text-base sm:text-lg font-black text-white">
+            <h4 className="text-sm sm:text-base font-black text-white">
               Achieve These Results with {activeScenario.recommendedProduct}
             </h4>
             <p className="text-xs text-slate-300">
@@ -306,7 +307,7 @@ export const BeforeAfterComparisonSlider: React.FC = () => {
 
           <a
             href={activeScenario.productLink}
-            className="shrink-0 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs sm:text-sm px-6 py-3 rounded-2xl flex items-center gap-2 shadow-lg shadow-emerald-500/20 hover:scale-105 active:scale-95 transition-all duration-200"
+            className="w-full sm:w-auto shrink-0 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs sm:text-sm px-5 py-3 rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 active:scale-95 transition-all duration-200"
           >
             <span>Order Recommended Inputs</span>
             <ArrowRight className="w-4 h-4" />
