@@ -8,12 +8,12 @@ const baseURL = import.meta.env.VITE_API_URL;
 export const apiClient = axios.create({
   baseURL,
   withCredentials: true,
-  timeout: 15000,
+  timeout: 30000,
 });
 
 export const publicApi = axios.create({
   baseURL,
-  timeout: 15000,
+  timeout: 30000,
 });
 
 // Request interceptor for apiClient
