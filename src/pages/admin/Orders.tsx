@@ -59,6 +59,7 @@ export const Orders: React.FC = () => {
   }, [search]);
 
   const [updatingOrderId, setUpdatingOrderId] = useState<string | null>(null);
+  const isAnyActionLoading = Boolean(updatingOrderId || isLoading);
 
   const handleUpdateStatus = async (orderId: string, status: string) => {
     setUpdatingOrderId(orderId);

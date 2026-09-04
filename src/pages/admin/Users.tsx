@@ -214,6 +214,8 @@ export const UsersPage: React.FC = () => {
   const [fetchingRbscId, setFetchingRbscId] = useState<number | null>(null);
   const [deletingUserId, setDeletingUserId] = useState<number | null>(null);
 
+  const isAnyActionLoading = Boolean(fetchingDetailId || fetchingRbscId || deletingUserId || isSaving || isLoading);
+
   const handleViewDetails = async (user: StaffRecord) => {
     setFetchingDetailId(user.id);
     try {
@@ -332,7 +334,8 @@ export const UsersPage: React.FC = () => {
             {isSuperAdminOrAdmin && (
               <button
                 onClick={handleOpenCreateModal}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-xs font-black transition-all shadow-md flex items-center gap-2 cursor-pointer"
+                disabled={isAnyActionLoading}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-xs font-black transition-all shadow-md flex items-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <UserPlus className="w-4 h-4 shrink-0" />
                 <span>Add New Staff Account</span>
@@ -563,8 +566,8 @@ export const UsersPage: React.FC = () => {
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => handleViewDetails(user)}
-                        disabled={fetchingDetailId === user.id}
-                        className="py-1.5 px-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:text-emerald-500 font-bold text-xs flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                        disabled={isAnyActionLoading}
+                        className="py-1.5 px-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:text-emerald-500 font-bold text-xs flex items-center gap-1 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                         title="Inspect Capabilities"
                       >
                         {fetchingDetailId === user.id ? (
@@ -576,15 +579,16 @@ export const UsersPage: React.FC = () => {
                       </button>
                       <button
                         onClick={() => handleOpenEditModal(user)}
-                        className="p-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-blue-500 hover:bg-blue-50 cursor-pointer"
+                        disabled={isAnyActionLoading}
+                        className="p-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-blue-500 hover:bg-blue-50 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                         title="Edit Account"
                       >
                         <Edit className="w-3.5 h-3.5" />
                       </button>
                       <button
                         onClick={() => handleDeleteUser(user)}
-                        disabled={deletingUserId === user.id}
-                        className="p-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-rose-500 hover:bg-rose-50 cursor-pointer disabled:opacity-50"
+                        disabled={isAnyActionLoading}
+                        className="p-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-rose-500 hover:bg-rose-50 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                         title="Delete Account"
                       >
                         {deletingUserId === user.id ? (
@@ -695,8 +699,8 @@ export const UsersPage: React.FC = () => {
                           {isSuperAdminOrAdmin && (
                             <button
                               onClick={() => handleOpenRbscModal(user)}
-                              disabled={fetchingRbscId === user.id}
-                              className="p-1.5 rounded-lg bg-emerald-500/10 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-600 hover:text-white dark:hover:bg-emerald-600 dark:hover:text-white cursor-pointer transition-all border border-emerald-300 dark:border-emerald-800 disabled:opacity-50"
+                              disabled={isAnyActionLoading}
+                              className="p-1.5 rounded-lg bg-emerald-500/10 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-600 hover:text-white dark:hover:bg-emerald-600 dark:hover:text-white cursor-pointer transition-all border border-emerald-300 dark:border-emerald-800 disabled:opacity-50 disabled:cursor-not-allowed"
                               title="Edit Role & RBSC Permissions Matrix"
                             >
                               {fetchingRbscId === user.id ? (
@@ -708,8 +712,8 @@ export const UsersPage: React.FC = () => {
                           )}
                           <button
                             onClick={() => handleViewDetails(user)}
-                            disabled={fetchingDetailId === user.id}
-                            className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 cursor-pointer disabled:opacity-50"
+                            disabled={isAnyActionLoading}
+                            className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                             title="Inspect Staff Capabilities"
                           >
                             {fetchingDetailId === user.id ? (
@@ -722,15 +726,16 @@ export const UsersPage: React.FC = () => {
                             <>
                               <button
                                 onClick={() => handleOpenEditModal(user)}
-                                className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer"
+                                disabled={isAnyActionLoading}
+                                className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                                 title="Edit Staff Credentials"
                               >
                                 <Edit className="w-3.5 h-3.5" />
                               </button>
                               <button
                                 onClick={() => handleDeleteUser(user)}
-                                disabled={deletingUserId === user.id}
-                                className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-rose-600 dark:hover:text-rose-400 cursor-pointer disabled:opacity-50"
+                                disabled={isAnyActionLoading}
+                                className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-rose-600 dark:hover:text-rose-400 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                                 title="Revoke & Delete Staff Account"
                               >
                                 {deletingUserId === user.id ? (

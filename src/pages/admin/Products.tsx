@@ -87,6 +87,7 @@ export const Products: React.FC = () => {
   }, [page, perPage, debouncedSearch]);
 
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const isAnyActionLoading = Boolean(deletingId || isLoading);
 
   const handleDelete = async (id: string, name: string) => {
     if (window.confirm(`Are you sure you want to delete ${name}?`)) {
@@ -131,7 +132,7 @@ export const Products: React.FC = () => {
 
             <Link
               to="/admin/products/new"
-              className="inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-md cursor-pointer border border-emerald-500/30 transition-all"
+              className={`inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-md cursor-pointer border border-emerald-500/30 transition-all ${isAnyActionLoading ? 'pointer-events-none opacity-50' : ''}`}
             >
               <Plus className="w-4 h-4" />
               <span>Add New Product SKU</span>
@@ -247,13 +248,13 @@ export const Products: React.FC = () => {
                           {p.npk ? `${p.npk.n}:${p.npk.p}:${p.npk.k}` : 'NPK Standard'}
                         </td>
                         <td className="py-3.5 px-4 text-right space-x-2">
-                          <Link to={`/admin/products/edit/${p.id}`} className="p-1.5 text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 inline-block transition-colors">
+                          <Link to={`/admin/products/edit/${p.id}`} className={`p-1.5 text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 inline-block transition-colors ${isAnyActionLoading ? 'pointer-events-none opacity-50' : ''}`}>
                             <Edit2 className="w-4 h-4" />
                           </Link>
                           <button
                             onClick={() => handleDelete(String(p.id), p.name)}
-                            disabled={deletingId === String(p.id)}
-                            className="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 cursor-pointer transition-colors disabled:opacity-50"
+                            disabled={isAnyActionLoading}
+                            className="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             {deletingId === String(p.id) ? (
                               <RefreshCw className="w-4 h-4 animate-spin text-rose-500" />

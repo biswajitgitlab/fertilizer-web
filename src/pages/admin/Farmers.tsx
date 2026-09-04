@@ -78,6 +78,7 @@ export const Farmers: React.FC = () => {
   }, [page, perPage, debouncedSearch, statusFilter]);
 
   const [verifyingId, setVerifyingId] = useState<number | null>(null);
+  const isAnyActionLoading = Boolean(verifyingId !== null || loading);
 
   const handleVerify = async (id: number, status: string) => {
     setVerifyingId(id);
@@ -244,7 +245,7 @@ export const Farmers: React.FC = () => {
                         ) : (
                           <button
                             onClick={() => handleVerify(farmer.id, 'VERIFIED_AADHAAR')}
-                            disabled={verifyingId === farmer.id}
+                            disabled={isAnyActionLoading}
                             className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[11px] font-bold transition shadow-xs cursor-pointer active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-1.5 ml-auto"
                           >
                             {verifyingId === farmer.id ? (

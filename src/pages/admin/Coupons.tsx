@@ -77,6 +77,7 @@ export const Coupons: React.FC = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const isAnyActionLoading = Boolean(isSubmitting || deletingId !== null || isLoading);
 
   const handleAddCoupon = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -213,7 +214,7 @@ export const Coupons: React.FC = () => {
 
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isAnyActionLoading}
             className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-6 py-2.5 rounded-xl cursor-pointer shadow-md transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
           >
             {isSubmitting ? (
@@ -302,8 +303,8 @@ export const Coupons: React.FC = () => {
                   </span>
                   <button
                     onClick={() => handleDelete(c.id)}
-                    disabled={deletingId === c.id}
-                    className="text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 cursor-pointer p-1 transition-colors disabled:opacity-50"
+                    disabled={isAnyActionLoading}
+                    className="text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 cursor-pointer p-1 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {deletingId === c.id ? (
                       <RefreshCw className="w-4 h-4 animate-spin text-rose-500" />
