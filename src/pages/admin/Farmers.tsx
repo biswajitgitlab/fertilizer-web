@@ -77,7 +77,10 @@ export const Farmers: React.FC = () => {
     fetchFarmers();
   }, [page, perPage, debouncedSearch, statusFilter]);
 
+  const [verifyingId, setVerifyingId] = useState<number | null>(null);
+
   const handleVerify = async (id: number, status: string) => {
+    setVerifyingId(id);
     try {
       await api.post(`/admin/farmers/${id}/verify`, {
         verification_status: status,
@@ -88,6 +91,8 @@ export const Farmers: React.FC = () => {
       fetchFarmers();
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Verification update failed');
+    } finally {
+      setVerifyingId(null);
     }
   };
 
@@ -239,9 +244,17 @@ export const Farmers: React.FC = () => {
                         ) : (
                           <button
                             onClick={() => handleVerify(farmer.id, 'VERIFIED_AADHAAR')}
-                            className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[11px] font-bold transition shadow-xs cursor-pointer active:scale-95"
+                            disabled={verifyingId === farmer.id}
+                            className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[11px] font-bold transition shadow-xs cursor-pointer active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-1.5 ml-auto"
                           >
-                            Approve Subsidy
+                            {verifyingId === farmer.id ? (
+                              <>
+                                <RefreshCw className="w-3 h-3 animate-spin" />
+                                <span>Approving...</span>
+                              </>
+                            ) : (
+                              'Approve Subsidy'
+                            )}
                           </button>
                         )}
                       </td>

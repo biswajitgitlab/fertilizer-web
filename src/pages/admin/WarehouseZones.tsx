@@ -93,8 +93,11 @@ export const WarehouseZones: React.FC = () => {
     setShowModal(true);
   };
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
     try {
       if (editingZone) {
         await api.put(`/admin/warehouse-zones/${editingZone.id}`, formData);
@@ -107,17 +110,22 @@ export const WarehouseZones: React.FC = () => {
       fetchZones();
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Failed to save warehouse zone');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleDelete = async (id: number, code: string) => {
     if (!window.confirm(`Are you sure you want to delete zone ${code}?`)) return;
+    setIsSubmitting(true);
     try {
       await api.delete(`/admin/warehouse-zones/${id}`);
       toast.success(`Zone ${code} deleted!`);
       fetchZones();
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Failed to delete zone');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -389,10 +397,20 @@ export const WarehouseZones: React.FC = () => {
                   </button>
                   <button
                     type="submit"
-                    className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition shadow-md cursor-pointer"
+                    disabled={isSubmitting}
+                    className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition shadow-md cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                   >
-                    <Save className="w-4 h-4" />
-                    <span>Save Zone</span>
+                    {isSubmitting ? (
+                      <>
+                        <RefreshCw className="w-4 h-4 animate-spin" />
+                        <span>Saving...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Save className="w-4 h-4" />
+                        <span>Save Zone</span>
+                      </>
+                    )}
                   </button>
                 </div>
               </form>

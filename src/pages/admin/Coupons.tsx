@@ -75,10 +75,14 @@ export const Coupons: React.FC = () => {
     fetchCoupons();
   }, [page, perPage, debouncedSearch]);
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+
   const handleAddCoupon = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newCode || !newValue) return;
 
+    setIsSubmitting(true);
     try {
       await apiClient.post('/admin/coupons', {
         code: newCode.toUpperCase(),
@@ -95,16 +99,21 @@ export const Coupons: React.FC = () => {
       fetchCoupons();
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Failed to create coupon");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleDelete = async (id: number) => {
+    setDeletingId(id);
     try {
       await apiClient.delete(`/admin/coupons/${id}`);
       toast.success(`Deleted coupon successfully`);
       fetchCoupons();
     } catch (err) {
       toast.error("Failed to delete coupon");
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -202,8 +211,19 @@ export const Coupons: React.FC = () => {
             </label>
           </div>
 
-          <button type="submit" className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-6 py-2.5 rounded-xl cursor-pointer shadow-md transition-all">
-            Publish Token Code
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-6 py-2.5 rounded-xl cursor-pointer shadow-md transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
+          >
+            {isSubmitting ? (
+              <>
+                <RefreshCw className="w-4 h-4 animate-spin" />
+                <span>Publishing Token...</span>
+              </>
+            ) : (
+              'Publish Token Code'
+            )}
           </button>
         </form>
 
@@ -280,8 +300,16 @@ export const Coupons: React.FC = () => {
                   <span className="bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20 text-xs font-bold px-3 py-1 rounded-full">
                     {c.type === 'PERCENT' ? `${c.value}% OFF` : `₹${c.value} OFF`}
                   </span>
-                  <button onClick={() => handleDelete(c.id)} className="text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 cursor-pointer p-1 transition-colors">
-                    <Trash2 className="w-4 h-4" />
+                  <button
+                    onClick={() => handleDelete(c.id)}
+                    disabled={deletingId === c.id}
+                    className="text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 cursor-pointer p-1 transition-colors disabled:opacity-50"
+                  >
+                    {deletingId === c.id ? (
+                      <RefreshCw className="w-4 h-4 animate-spin text-rose-500" />
+                    ) : (
+                      <Trash2 className="w-4 h-4" />
+                    )}
                   </button>
                 </div>
               </div>

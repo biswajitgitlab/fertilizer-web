@@ -86,14 +86,19 @@ export const Products: React.FC = () => {
     fetchProducts();
   }, [page, perPage, debouncedSearch]);
 
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
   const handleDelete = async (id: string, name: string) => {
     if (window.confirm(`Are you sure you want to delete ${name}?`)) {
+      setDeletingId(id);
       try {
         await adminApi.deleteProduct(id);
         toast.success(`Deleted ${name}`);
         fetchProducts();
       } catch (e) {
         toast.error("Failed to delete product.");
+      } finally {
+        setDeletingId(null);
       }
     }
   };
@@ -245,8 +250,16 @@ export const Products: React.FC = () => {
                           <Link to={`/admin/products/edit/${p.id}`} className="p-1.5 text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 inline-block transition-colors">
                             <Edit2 className="w-4 h-4" />
                           </Link>
-                          <button onClick={() => handleDelete(String(p.id), p.name)} className="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 cursor-pointer transition-colors">
-                            <Trash2 className="w-4 h-4" />
+                          <button
+                            onClick={() => handleDelete(String(p.id), p.name)}
+                            disabled={deletingId === String(p.id)}
+                            className="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 cursor-pointer transition-colors disabled:opacity-50"
+                          >
+                            {deletingId === String(p.id) ? (
+                              <RefreshCw className="w-4 h-4 animate-spin text-rose-500" />
+                            ) : (
+                              <Trash2 className="w-4 h-4" />
+                            )}
                           </button>
                         </td>
                       </tr>

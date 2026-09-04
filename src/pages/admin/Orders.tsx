@@ -58,13 +58,18 @@ export const Orders: React.FC = () => {
     return () => clearTimeout(timer);
   }, [search]);
 
+  const [updatingOrderId, setUpdatingOrderId] = useState<string | null>(null);
+
   const handleUpdateStatus = async (orderId: string, status: string) => {
+    setUpdatingOrderId(orderId);
     try {
       await adminApi.updateOrderStatus(orderId, status);
       toast.success(`Order status updated to ${status}`);
       fetchOrders();
     } catch (e) {
       toast.error("Failed to update status.");
+    } finally {
+      setUpdatingOrderId(null);
     }
   };
 
@@ -92,12 +97,16 @@ export const Orders: React.FC = () => {
     }
   };
 
-  const renderStatusBadge = (status: string, extraClasses: string) => {
+  const renderStatusBadge = (status: string, extraClasses: string, isUpdating?: boolean) => {
     const { icon: Icon, classes } = getStatusStyles(status);
     return (
       <span className={`inline-flex items-center gap-1.5 font-bold border ${classes} ${extraClasses}`}>
-        <Icon className="w-3.5 h-3.5" />
-        {status}
+        {isUpdating ? (
+          <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+        ) : (
+          <Icon className="w-3.5 h-3.5" />
+        )}
+        {isUpdating ? 'Updating...' : status}
       </span>
     );
   };
@@ -221,7 +230,7 @@ export const Orders: React.FC = () => {
 
                     <div>
                       <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase block text-right">Status</span>
-                      {renderStatusBadge(ord.status, "px-2.5 py-1 rounded-xl text-[10px] sm:text-xs")}
+                      {renderStatusBadge(ord.status, "px-2.5 py-1 rounded-xl text-[10px] sm:text-xs", updatingOrderId === ord.id)}
                     </div>
                   </div>
 
@@ -273,7 +282,7 @@ export const Orders: React.FC = () => {
                       <td className="py-3.5 px-4 text-slate-500 dark:text-slate-400">{formatDate(ord.createdAt)}</td>
                       <td className="py-3.5 px-4 font-black text-slate-900 dark:text-white">{formatCurrency(ord.total)}</td>
                       <td className="py-3.5 px-4">
-                        {renderStatusBadge(ord.status, "px-3 py-1.5 rounded-xl text-xs")}
+                        {renderStatusBadge(ord.status, "px-3 py-1.5 rounded-xl text-xs", updatingOrderId === ord.id)}
                       </td>
                       <td className="py-3.5 px-4 text-right">
                         <Link to={`/admin/orders/${ord.id}`} className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 font-bold transition-colors">
