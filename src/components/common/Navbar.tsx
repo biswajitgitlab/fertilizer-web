@@ -278,93 +278,124 @@ export const Navbar: React.FC = () => {
                 </motion.button>
 
                 {notifDropdownOpen && (
-                  <div className="fixed left-3 right-3 top-16 sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-2 sm:w-96 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-gray-100 dark:border-slate-800 py-3 z-50 animate-fade-in text-gray-900 dark:text-white">
-                    <div className="px-4 pb-2 border-b border-gray-100 dark:border-slate-800 flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Bell className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                        <h4 className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider">Notifications</h4>
-                        {unreadCount > 0 && (
-                          <span className="bg-rose-100 dark:bg-rose-950/80 text-rose-700 dark:text-rose-300 text-[10px] font-bold px-2 py-0.5 rounded-full">
-                            {unreadCount} new
-                          </span>
+                  <>
+                    {/* Dark Dim Backdrop for touch dismiss */}
+                    <div 
+                      className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-40"
+                      onClick={() => setNotifDropdownOpen(false)}
+                    />
+
+                    {/* Mobile Bottom Sheet & Desktop Popover */}
+                    <div className="fixed inset-x-3 bottom-4 sm:bottom-auto sm:top-full sm:mt-2 sm:right-0 sm:left-auto sm:w-96 bg-white dark:bg-slate-900 rounded-3xl sm:rounded-2xl shadow-2xl border border-gray-200 dark:border-slate-800 p-4 z-50 animate-in slide-in-from-bottom-4 sm:slide-in-from-top-2 duration-200 text-gray-900 dark:text-white max-h-[82vh] flex flex-col">
+                      
+                      {/* Mobile Drag Indicator Pill */}
+                      <div className="w-12 h-1 bg-slate-300 dark:bg-slate-700 rounded-full mx-auto mb-2 sm:hidden shrink-0" />
+
+                      {/* Header */}
+                      <div className="pb-3 border-b border-gray-100 dark:border-slate-800 flex items-center justify-between shrink-0">
+                        <div className="flex items-center gap-2">
+                          <div className="p-1.5 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                            <Bell className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <h4 className="text-xs sm:text-sm font-black text-gray-900 dark:text-white uppercase tracking-wider">Notifications</h4>
+                            <p className="text-[10px] text-slate-500 dark:text-slate-400">Real-time store updates</p>
+                          </div>
+                          {unreadCount > 0 && (
+                            <span className="bg-rose-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow-xs">
+                              {unreadCount} new
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          {unreadCount > 0 && (
+                            <button
+                              onClick={handleMarkAllRead}
+                              className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 hover:underline cursor-pointer flex items-center gap-1"
+                            >
+                              <CheckCheck className="w-3.5 h-3.5" />
+                              <span className="hidden xs:inline">Mark read</span>
+                            </button>
+                          )}
+                          <button
+                            onClick={() => setNotifDropdownOpen(false)}
+                            className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                            aria-label="Close Notifications"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Filter Tabs */}
+                      <div className="flex border-b border-gray-100 dark:border-slate-800 py-2 gap-2 shrink-0">
+                        <button
+                          onClick={() => setNotifFilter('unread')}
+                          className={`text-xs font-black px-3 py-1.5 rounded-xl transition-all cursor-pointer ${
+                            notifFilter === 'unread'
+                              ? 'bg-emerald-600 text-white shadow-xs'
+                              : 'text-gray-600 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800'
+                          }`}
+                        >
+                          Unread ({unreadCount})
+                        </button>
+                        <button
+                          onClick={() => setNotifFilter('all')}
+                          className={`text-xs font-black px-3 py-1.5 rounded-xl transition-all cursor-pointer ${
+                            notifFilter === 'all'
+                              ? 'bg-emerald-600 text-white shadow-xs'
+                              : 'text-gray-600 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800'
+                          }`}
+                        >
+                          All ({safeNotifications.length})
+                        </button>
+                      </div>
+
+                      {/* Scrollable Items */}
+                      <div className="overflow-y-auto divide-y divide-gray-100 dark:divide-slate-800/60 flex-1 my-1">
+                        {displayedNotifications.length === 0 ? (
+                          <div className="p-8 text-center text-xs text-gray-500 dark:text-slate-400 space-y-2">
+                            <CheckCheck className="w-8 h-8 text-emerald-500 mx-auto mb-1 opacity-80" />
+                            <p className="font-extrabold text-sm text-gray-800 dark:text-slate-200">
+                              {notifFilter === 'unread' ? 'All caught up!' : 'No order notifications'}
+                            </p>
+                            <p className="text-xs text-gray-400 dark:text-slate-500">
+                              {notifFilter === 'unread'
+                                ? 'No unread status updates at this moment.'
+                                : 'Real order status changes will appear here.'}
+                            </p>
+                          </div>
+                        ) : (
+                          displayedNotifications.map((n) => (
+                            <div
+                              key={n.id}
+                              onClick={() => handleNotificationClick(n)}
+                              className={`p-3 rounded-2xl my-1 transition-all cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-800/80 flex gap-3 items-start ${
+                                n.unread ? 'bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-500/20' : ''
+                              }`}
+                            >
+                              <div className="p-2 rounded-xl bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 shrink-0 mt-0.5 border border-emerald-500/20">
+                                <Package className="w-4 h-4" />
+                              </div>
+                              <div className="flex-1 space-y-1 text-xs min-w-0">
+                                <div className="flex items-center justify-between gap-2">
+                                  <p className="font-extrabold text-gray-900 dark:text-white leading-tight truncate">{n.title}</p>
+                                  {n.unread && <span className="w-2 h-2 rounded-full bg-rose-500 shrink-0" />}
+                                </div>
+                                <p className="text-gray-600 dark:text-slate-300 line-clamp-2">{n.message}</p>
+                                <p className="text-[10px] text-gray-400 dark:text-slate-500 flex items-center gap-1 pt-0.5">
+                                  <Clock className="w-3 h-3 text-emerald-500" />
+                                  <span>{n.time}</span>
+                                </p>
+                              </div>
+                            </div>
+                          ))
                         )}
                       </div>
-                      {unreadCount > 0 && (
-                        <button
-                          onClick={handleMarkAllRead}
-                          className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 hover:underline cursor-pointer flex items-center gap-1"
-                        >
-                          <CheckCheck className="w-3.5 h-3.5" />
-                          <span>Mark all read</span>
-                        </button>
-                      )}
-                    </div>
 
-                    {/* Filter Tabs */}
-                    <div className="flex border-b border-gray-100 dark:border-slate-800 px-3 py-1.5 gap-2 bg-gray-50/50 dark:bg-slate-800/40">
-                      <button
-                        onClick={() => setNotifFilter('unread')}
-                        className={`text-[11px] font-bold px-2.5 py-1 rounded-lg transition-colors cursor-pointer ${
-                          notifFilter === 'unread'
-                            ? 'bg-emerald-600 text-white shadow-xs'
-                            : 'text-gray-600 dark:text-slate-400 hover:bg-gray-200/60 dark:hover:bg-slate-800'
-                        }`}
-                      >
-                        Unread ({unreadCount})
-                      </button>
-                      <button
-                        onClick={() => setNotifFilter('all')}
-                        className={`text-[11px] font-bold px-2.5 py-1 rounded-lg transition-colors cursor-pointer ${
-                          notifFilter === 'all'
-                            ? 'bg-emerald-600 text-white shadow-xs'
-                            : 'text-gray-600 dark:text-slate-400 hover:bg-gray-200/60 dark:hover:bg-slate-800'
-                        }`}
-                      >
-                        All ({safeNotifications.length})
-                      </button>
                     </div>
-
-                    <div className="max-h-72 sm:max-h-80 overflow-y-auto divide-y divide-gray-100 dark:divide-slate-800/60">
-                      {displayedNotifications.length === 0 ? (
-                        <div className="p-6 text-center text-xs text-gray-500 dark:text-slate-400 space-y-1">
-                          <CheckCheck className="w-6 h-6 text-emerald-500 mx-auto mb-1 opacity-80" />
-                          <p className="font-semibold text-gray-700 dark:text-slate-300">
-                            {notifFilter === 'unread' ? 'All caught up!' : 'No order notifications'}
-                          </p>
-                          <p className="text-[11px] text-gray-400 dark:text-slate-500">
-                            {notifFilter === 'unread'
-                              ? 'No unread status updates at this moment.'
-                              : 'Real order status changes will appear here.'}
-                          </p>
-                        </div>
-                      ) : (
-                        displayedNotifications.map((n) => (
-                          <div
-                            key={n.id}
-                            onClick={() => handleNotificationClick(n)}
-                            className={`p-3 transition-colors cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-800/70 flex gap-3 items-start ${
-                              n.unread ? 'bg-emerald-50/50 dark:bg-emerald-950/20 font-semibold' : ''
-                            }`}
-                          >
-                            <div className="p-2 rounded-xl bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 shrink-0 mt-0.5">
-                              <Package className="w-4 h-4" />
-                            </div>
-                            <div className="flex-1 space-y-1 text-xs">
-                              <div className="flex items-center justify-between gap-1">
-                                <p className="font-bold text-gray-900 dark:text-white leading-tight">{n.title}</p>
-                                {n.unread && <span className="w-2 h-2 rounded-full bg-rose-500 shrink-0" />}
-                              </div>
-                              <p className="text-gray-600 dark:text-slate-300 line-clamp-2">{n.message}</p>
-                              <p className="text-[10px] text-gray-400 dark:text-slate-500 flex items-center gap-1 pt-0.5">
-                                <Clock className="w-3 h-3" />
-                                <span>{n.time}</span>
-                              </p>
-                            </div>
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  </div>
+                  </>
                 )}
               </div>
             )}

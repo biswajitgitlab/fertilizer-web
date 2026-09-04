@@ -378,51 +378,70 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
 
               {/* Notification Center Popover */}
               {notificationsOpen && (
-                <div className={`absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl shadow-2xl border p-4 z-50 animate-in fade-in slide-in-from-top-2 duration-150 ${
-                  theme === 'dark'
-                    ? 'bg-slate-900/95 border-slate-800 text-slate-100 backdrop-blur-xl shadow-black/80'
-                    : 'bg-white border-slate-200 text-slate-900 shadow-xl'
-                }`}>
-                  {/* Header with Title, Refetch & Mark All Read */}
-                  <div className="flex items-center justify-between pb-3 border-b border-slate-800/80 dark:border-slate-800">
-                    <div className="flex items-center gap-2">
-                      <Bell className="w-4 h-4 text-emerald-500" />
-                      <div>
-                        <h3 className="text-xs font-bold uppercase tracking-wider">System Activity</h3>
-                        <span className="text-[9px] text-emerald-400 font-medium block">
-                          Role: {user?.role || 'Staff Admin'}
-                        </span>
-                      </div>
-                      {unreadCount > 0 && (
-                        <span className="px-2 py-0.5 text-[10px] font-extrabold bg-emerald-500/20 text-emerald-400 rounded-full border border-emerald-500/30 ml-1">
-                          {unreadCount} New
-                        </span>
-                      )}
-                    </div>
-                    
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={loadNotifications}
-                        title="Refresh Live Notifications"
-                        className={`p-1 rounded-lg transition-colors cursor-pointer ${
-                          loadingNotifications ? 'animate-spin text-emerald-400' : 'text-slate-400 hover:text-white'
-                        }`}
-                      >
-                        <RefreshCw className="w-3.5 h-3.5" />
-                      </button>
+                <>
+                  {/* Backdrop for click/touch dismiss */}
+                  <div
+                    className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-40"
+                    onClick={() => setNotificationsOpen(false)}
+                  />
 
-                      {unreadCount > 0 && (
+                  {/* Notification Center Popover / Sheet */}
+                  <div className={`fixed inset-x-3 top-16 sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-2 w-auto sm:w-96 rounded-3xl sm:rounded-2xl shadow-2xl border p-4 z-50 animate-in fade-in slide-in-from-top-2 duration-150 max-h-[85vh] flex flex-col ${
+                    theme === 'dark'
+                      ? 'bg-slate-900/95 border-slate-800 text-slate-100 backdrop-blur-xl shadow-black/80'
+                      : 'bg-white border-slate-200 text-slate-900 shadow-xl'
+                  }`}>
+                    {/* Mobile drag handle */}
+                    <div className="w-12 h-1 bg-slate-300 dark:bg-slate-700 rounded-full mx-auto mb-2 sm:hidden shrink-0" />
+
+                    {/* Header with Title, Refetch, Mark All Read & Close */}
+                    <div className="flex items-center justify-between pb-3 border-b border-slate-800/80 dark:border-slate-800 shrink-0">
+                      <div className="flex items-center gap-2">
+                        <Bell className="w-4 h-4 text-emerald-500" />
+                        <div>
+                          <h3 className="text-xs font-bold uppercase tracking-wider">System Activity</h3>
+                          <span className="text-[9px] text-emerald-400 font-medium block">
+                            Role: {user?.role || 'Staff Admin'}
+                          </span>
+                        </div>
+                        {unreadCount > 0 && (
+                          <span className="px-2 py-0.5 text-[10px] font-extrabold bg-emerald-500/20 text-emerald-400 rounded-full border border-emerald-500/30 ml-1">
+                            {unreadCount} New
+                          </span>
+                        )}
+                      </div>
+                      
+                      <div className="flex items-center gap-2">
                         <button
-                          onClick={handleMarkAllRead}
-                          className="text-[11px] font-bold text-emerald-500 hover:underline cursor-pointer flex items-center gap-1"
-                          title="Mark all as read"
+                          onClick={loadNotifications}
+                          title="Refresh Live Notifications"
+                          className={`p-1 rounded-lg transition-colors cursor-pointer ${
+                            loadingNotifications ? 'animate-spin text-emerald-400' : 'text-slate-400 hover:text-white'
+                          }`}
                         >
-                          <CheckCheck className="w-3.5 h-3.5" />
-                          <span className="hidden sm:inline">Mark read</span>
+                          <RefreshCw className="w-3.5 h-3.5" />
                         </button>
-                      )}
+
+                        {unreadCount > 0 && (
+                          <button
+                            onClick={handleMarkAllRead}
+                            className="text-[11px] font-bold text-emerald-500 hover:underline cursor-pointer flex items-center gap-1"
+                            title="Mark all as read"
+                          >
+                            <CheckCheck className="w-3.5 h-3.5" />
+                            <span className="hidden sm:inline">Mark read</span>
+                          </button>
+                        )}
+
+                        <button
+                          onClick={() => setNotificationsOpen(false)}
+                          className="p-1 rounded-lg text-slate-400 hover:text-white transition-colors"
+                          aria-label="Close Notifications"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
-                  </div>
 
                   {/* Filter Category Scope Tabs */}
                   <div className="flex items-center gap-1 my-2 overflow-x-auto py-1 scrollbar-none border-b border-slate-800/40">
@@ -528,7 +547,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
                     )}
                   </div>
 
-                  <div className="pt-2 border-t border-slate-800/80 dark:border-slate-800 text-center">
+                  <div className="pt-2 border-t border-slate-800/80 dark:border-slate-800 text-center shrink-0">
                     <button
                       onClick={() => {
                         setNotificationsOpen(false);
@@ -541,7 +560,8 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
                     </button>
                   </div>
                 </div>
-              )}
+              </>
+            )}
             </div>
 
             {/* Admin Profile Dropdown Trigger */}

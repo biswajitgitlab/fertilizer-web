@@ -155,40 +155,44 @@ export function App() {
         <GlobalPreloader />
         <ScrollToTop />
         <Toaster
-          position="top-right"
+          position={typeof window !== 'undefined' && window.innerWidth < 640 ? "bottom-center" : "top-right"}
+          containerStyle={{
+            bottom: typeof window !== 'undefined' && window.innerWidth < 640 ? 70 : 16,
+            top: typeof window !== 'undefined' && window.innerWidth < 640 ? 16 : 16,
+          }}
           toastOptions={{
-            duration: 1800,
+            duration: 2200,
             style: {
-              background: 'rgba(15, 23, 42, 0.94)',
+              background: 'rgba(15, 23, 42, 0.95)',
               color: '#f8fafc',
-              borderRadius: '1rem',
-              border: '1px solid rgba(51, 65, 85, 0.8)',
+              borderRadius: '1.25rem',
+              border: '1px solid rgba(16, 185, 129, 0.3)',
               backdropFilter: 'blur(16px)',
               WebkitBackdropFilter: 'blur(16px)',
               boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.3)',
-              fontSize: '0.875rem',
-              fontWeight: '600',
-              padding: '12px 18px',
-              animation: 'toast-slide-right-to-left 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+              fontSize: '0.8125rem',
+              fontWeight: '700',
+              padding: '10px 16px',
+              maxWidth: '92vw',
             },
             success: {
-              duration: 1800,
+              duration: 2200,
               iconTheme: {
                 primary: '#10b981',
                 secondary: '#020617',
               },
               style: {
-                border: '1px solid rgba(16, 185, 129, 0.5)',
+                border: '1px solid rgba(16, 185, 129, 0.4)',
               },
             },
             error: {
-              duration: 2200,
+              duration: 3000,
               iconTheme: {
                 primary: '#f43f5e',
                 secondary: '#020617',
               },
               style: {
-                border: '1px solid rgba(244, 63, 94, 0.5)',
+                border: '1px solid rgba(244, 63, 94, 0.4)',
               },
             },
           }}
