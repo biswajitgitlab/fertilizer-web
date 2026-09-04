@@ -1,6 +1,5 @@
 import React, { useRef } from 'react';
 import { motion, useScroll, useTransform } from 'motion/react';
-import { ChevronDown } from 'lucide-react';
 import { HeroCarousel } from './HeroCarousel';
 import { DynamicCouponOfferBanner } from '../common/DynamicCouponOfferBanner';
 
@@ -16,7 +15,6 @@ export const ParallaxHero: React.FC = () => {
   // Multi-layer parallax depths
   const bgMeshY = useTransform(scrollYProgress, [0, 1], ["0%", "25%"]);
   const glowLightsY = useTransform(scrollYProgress, [0, 1], ["0%", "35%"]);
-  const promptOpacity = useTransform(scrollYProgress, [0, 0.25], [1, 0]);
 
   return (
     <section 
@@ -45,25 +43,6 @@ export const ParallaxHero: React.FC = () => {
         <HeroCarousel />
         <DynamicCouponOfferBanner />
       </div>
-
-      {/* ── Layer 5: Scroll To Explore Pill Indicator ── */}
-      <motion.div 
-        style={{ opacity: promptOpacity }}
-        className="relative z-20 flex flex-col items-center gap-2 pt-6 text-emerald-400"
-      >
-        <div className="inline-flex items-center gap-2 bg-slate-900/90 border border-emerald-500/30 backdrop-blur-xl px-4 py-1.5 rounded-full shadow-lg">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-          <span className="text-[11px] font-black uppercase tracking-widest text-emerald-300">
-            Scroll down to explore
-          </span>
-        </div>
-        <motion.div 
-          animate={{ y: [0, 8, 0] }} 
-          transition={{ repeat: Infinity, duration: 1.6, ease: "easeInOut" }}
-        >
-          <ChevronDown className="w-5 h-5 text-emerald-400" />
-        </motion.div>
-      </motion.div>
     </section>
   );
 };

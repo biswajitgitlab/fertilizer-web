@@ -117,22 +117,6 @@ export const Home: React.FC = () => {
           <DynamicCouponOfferBanner />
         </div>
         
-        {/* Bouncing Scroll Down Prompt */}
-        <motion.div 
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-emerald-600 dark:text-emerald-400 z-10 cursor-pointer"
-          onClick={() => {
-            const el = document.getElementById('categories');
-            if (el) el.scrollIntoView({ behavior: 'smooth' });
-          }}
-          style={{ opacity: useTransform(heroScroll, [0, 0.2], [1, 0]) }}
-        >
-          <span className="text-[10px] font-bold uppercase tracking-widest bg-white/50 dark:bg-slate-900/50 backdrop-blur-md px-3 py-1 rounded-full border border-emerald-500/10">
-            Scroll down to explore
-          </span>
-          <motion.div animate={{ y: [0, 8, 0] }} transition={{ repeat: Infinity, duration: 1.5 }}>
-            <ChevronDown className="w-5 h-5" />
-          </motion.div>
-        </motion.div>
       </section>
 
       {/* ─── 4. INFINITE ROLLING MARQUEE TICKER ─── */}
