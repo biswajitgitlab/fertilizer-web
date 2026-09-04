@@ -5,6 +5,7 @@ import { Diagnosis } from '../types';
 import { Stethoscope, ArrowRight, ShieldCheck, Clock, Search, Filter } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { Pagination } from '../components/common/Pagination';
+import { Loader } from '../components/common/Loader';
 
 export const DiagnoseHistory: React.FC = () => {
   const [history, setHistory] = useState<Diagnosis[]>([]);
@@ -128,10 +129,7 @@ export const DiagnoseHistory: React.FC = () => {
 
       {/* Main Content List */}
       {isLoading ? (
-        <div className="space-y-4 animate-pulse">
-          <div className="h-28 bg-gray-200 dark:bg-slate-800 rounded-3xl" />
-          <div className="h-28 bg-gray-200 dark:bg-slate-800 rounded-3xl" />
-        </div>
+        <Loader text="Fetching Diagnosis History..." subtext="Accessing AI leaf scan archives & lab reports" variant="card" />
       ) : history.length === 0 ? (
         <div className="bg-white dark:bg-slate-900 rounded-3xl border border-gray-100 dark:border-slate-800 p-12 text-center space-y-3">
           <Stethoscope className="w-12 h-12 text-gray-300 dark:text-slate-600 mx-auto" />

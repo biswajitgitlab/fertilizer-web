@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Loader } from '../../components/common/Loader';
 
 const FALLBACK_CROP_IMAGE = "https://images.unsplash.com/photo-1574943320219-553eb213f72d?auto=format&fit=crop&q=80&w=600";
 
@@ -195,16 +196,7 @@ export const Diagnoses: React.FC = () => {
 
         {/* Loading Skeletons */}
         {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {[1, 2, 3, 4].map(n => (
-              <div key={n} className="bg-white/90 dark:bg-slate-900/60 backdrop-blur-md rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800/80 animate-pulse space-y-4">
-                <div className="h-6 bg-slate-200 dark:bg-slate-800 rounded-full w-1/3" />
-                <div className="h-40 bg-slate-200 dark:bg-slate-800 rounded-2xl w-full" />
-                <div className="h-5 bg-slate-200 dark:bg-slate-800 rounded w-2/3" />
-                <div className="h-12 bg-slate-200 dark:bg-slate-800 rounded-xl w-full" />
-              </div>
-            ))}
-          </div>
+          <Loader text="Analyzing Crop Diagnoses..." subtext="Syncing AI leaf disease scans & expert reviews" variant="card" />
         ) : filteredDiagnoses.length === 0 ? (
           /* Empty State */
           <div className="bg-white/90 dark:bg-slate-900/60 backdrop-blur-md rounded-3xl p-12 border border-slate-200/80 dark:border-slate-800/80 text-center space-y-4 max-w-xl mx-auto my-8">

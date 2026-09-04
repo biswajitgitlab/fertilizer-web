@@ -7,6 +7,7 @@ import { InvoiceDownloader } from '../components/order/InvoiceDownloader';
 import { formatCurrency, formatDate } from '../utils/formatters';
 import { ArrowLeft, Package, MapPin, CreditCard, ShieldCheck, XCircle, AlertCircle, CheckCircle2, RotateCcw } from 'lucide-react';
 import { PaymentModal } from '../components/checkout/PaymentModal';
+import { Loader } from '../components/common/Loader';
 import { echo } from '../utils/echo';
 
 const normalizeOrder = (raw: any): Order | null => {
@@ -171,7 +172,7 @@ export const OrderDetail: React.FC = () => {
   };
 
   if (isLoading) {
-    return <div className="max-w-4xl mx-auto py-16 text-center animate-pulse">Loading order...</div>;
+    return <Loader text="Loading Order Details..." subtext="Accessing real-time shipment status & tracking" fullScreen />;
   }
 
   if (!order) {

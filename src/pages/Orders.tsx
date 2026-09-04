@@ -3,6 +3,7 @@ import { orderApi } from '../api/orderApi';
 import { OrderCard } from '../components/order/OrderCard';
 import { Package, ShoppingBag, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { Loader } from '../components/common/Loader';
 
 export const Orders: React.FC = () => {
   const [orders, setOrders] = useState<any[]>([]);
@@ -51,10 +52,7 @@ export const Orders: React.FC = () => {
 
       {/* States */}
       {isLoading ? (
-        <div className="space-y-4 animate-pulse">
-          <div className="h-28 bg-white/70 dark:bg-slate-800/60 rounded-3xl border border-emerald-100/60 dark:border-slate-800" />
-          <div className="h-28 bg-white/70 dark:bg-slate-800/60 rounded-3xl border border-emerald-100/60 dark:border-slate-800" />
-        </div>
+        <Loader text="Loading Farm Orders..." subtext="Syncing dispatch status & payment receipts" variant="card" />
       ) : error ? (
         <div className="bg-rose-50/90 dark:bg-rose-950/40 backdrop-blur-md border border-rose-200 dark:border-rose-800 rounded-3xl p-8 text-center space-y-2">
           <p className="text-sm font-bold text-rose-700 dark:text-rose-400">{error}</p>

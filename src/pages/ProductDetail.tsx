@@ -10,6 +10,7 @@ import { Button } from '../components/common/Button';
 import { useCart } from '../hooks/useCart';
 import { useAuth } from '../hooks/useAuth';
 import { formatCurrency, calculateDiscount } from '../utils/formatters';
+import { Loader } from '../components/common/Loader';
 import { ShieldCheck, Truck, Headphones, ShoppingCart, CheckCircle2, Star, UserCheck, MessageSquare, Send, Lock, Check, Edit3 } from 'lucide-react';
 import { apiClient } from '../api/axiosInstances';
 import toast from 'react-hot-toast';
@@ -125,12 +126,7 @@ export const ProductDetail: React.FC = () => {
   };
 
   if (isLoading) {
-    return (
-      <div className="max-w-7xl mx-auto px-4 py-16 text-center animate-pulse space-y-4">
-        <div className="h-8 bg-gray-200 rounded-xl w-1/3 mx-auto" />
-        <div className="h-64 bg-gray-200 rounded-3xl max-w-xl mx-auto" />
-      </div>
-    );
+    return <Loader text="Fetching Product Specification..." subtext="Accessing nutrient catalog & lab certifications" fullScreen />;
   }
 
   if (!product) {

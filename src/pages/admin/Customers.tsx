@@ -7,6 +7,7 @@ import {
   Copy, Check, FileText, ChevronLeft, ChevronRight, Cpu
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import { Loader } from '../../components/common/Loader';
 
 interface CustomerRecord {
   id: number | string;
@@ -197,7 +198,7 @@ export const Customers: React.FC = () => {
           {/* Mobile Customer Cards View (Visible under sm) */}
           <div className="block sm:hidden divide-y divide-emerald-100/60 dark:divide-slate-800/50">
             {isLoading ? (
-              <div className="py-8 text-center text-xs text-slate-400">Loading farmer directory...</div>
+              <Loader text="Loading Farmer Directory..." subtext="Syncing CRM records & land holdings" variant="table" />
             ) : customers.length === 0 ? (
               <div className="py-8 text-center text-xs text-slate-400">No registered customers found.</div>
             ) : (
@@ -283,16 +284,11 @@ export const Customers: React.FC = () => {
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50 text-xs text-slate-800 dark:text-slate-200 font-medium">
                 {isLoading ? (
-                  Array.from({ length: 5 }).map((_, idx) => (
-                    <tr key={idx} className="animate-pulse">
-                      <td className="py-3.5 px-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-36"></div></td>
-                      <td className="py-3.5 px-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-40"></div></td>
-                      <td className="py-3.5 px-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-28"></div></td>
-                      <td className="py-3.5 px-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-20"></div></td>
-                      <td className="py-3.5 px-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-20"></div></td>
-                      <td className="py-3.5 px-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-24"></div></td>
-                    </tr>
-                  ))
+                  <tr>
+                    <td colSpan={6} className="py-8 text-center">
+                      <Loader text="Loading Farmer Directory..." subtext="Syncing CRM records & land holdings" variant="table" />
+                    </td>
+                  </tr>
                 ) : customers.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="py-8 text-center text-slate-400">No registered customers found.</td>

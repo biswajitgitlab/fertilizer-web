@@ -5,6 +5,7 @@ import { CropPlanCard } from '../components/planner/CropPlanCard';
 import { PlanCreator } from '../components/planner/PlanCreator';
 import { Calendar, Plus, Sprout, Sparkles, ShieldCheck, TrendingUp, Layers } from 'lucide-react';
 import { Button } from '../components/common/Button';
+import { Loader } from '../components/common/Loader';
 
 export const Planner: React.FC = () => {
   const [plans, setPlans] = useState<CropPlan[]>([]);
@@ -126,11 +127,7 @@ export const Planner: React.FC = () => {
         {showCreator ? (
           <PlanCreator />
         ) : isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-pulse">
-            <div className="h-64 bg-white/70 dark:bg-slate-800/60 rounded-3xl border border-emerald-100/60 dark:border-slate-800" />
-            <div className="h-64 bg-white/70 dark:bg-slate-800/60 rounded-3xl border border-emerald-100/60 dark:border-slate-800" />
-            <div className="h-64 bg-white/70 dark:bg-slate-800/60 rounded-3xl border border-emerald-100/60 dark:border-slate-800" />
-          </div>
+          <Loader text="Loading Seasonal Schedules..." subtext="Accessing field area parameters & NPK dosing engine" variant="card" />
         ) : plans.length === 0 ? (
           <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl rounded-3xl border border-emerald-200/80 dark:border-slate-800 p-12 text-center space-y-4 max-w-xl mx-auto shadow-lg shadow-emerald-900/5">
             <div className="w-16 h-16 rounded-2xl bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto shadow-inner">

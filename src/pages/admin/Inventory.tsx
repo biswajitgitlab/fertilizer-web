@@ -7,6 +7,7 @@ import { Product } from '../../types';
 import {
   AlertTriangle, Boxes, Search, X, ChevronLeft, ChevronRight, RefreshCw
 } from 'lucide-react';
+import { Loader } from '../../components/common/Loader';
 import toast from 'react-hot-toast';
 
 const DEFAULT_PRODUCT_IMG = 'https://images.unsplash.com/photo-1585314062340-f1a5a7c9328d?auto=format&fit=crop&q=80&w=300';
@@ -134,16 +135,11 @@ export const Inventory: React.FC = () => {
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50 text-xs text-slate-800 dark:text-slate-200 font-medium">
                 {isLoading ? (
-                  Array.from({ length: 5 }).map((_, idx) => (
-                    <tr key={idx} className="animate-pulse">
-                      <td className="py-3 px-4"><div className="w-12 h-12 bg-slate-200 dark:bg-slate-800 rounded-xl"></div></td>
-                      <td className="py-3.5 px-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-40"></div></td>
-                      <td className="py-3.5 px-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-24"></div></td>
-                      <td className="py-3.5 px-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-16"></div></td>
-                      <td className="py-3.5 px-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-20"></div></td>
-                      <td className="py-3.5 px-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-24 ml-auto"></div></td>
-                    </tr>
-                  ))
+                  <tr>
+                    <td colSpan={6} className="py-8 text-center">
+                      <Loader text="Auditing Warehouse Inventory..." subtext="Syncing SKU batch balances & stock limits" variant="table" />
+                    </td>
+                  </tr>
                 ) : products.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="py-8 text-center text-slate-400 font-medium">No products found in inventory.</td>

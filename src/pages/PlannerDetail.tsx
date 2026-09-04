@@ -6,6 +6,7 @@ import { FertilizerCalendar } from '../components/planner/FertilizerCalendar';
 import { TaskList } from '../components/planner/TaskList';
 import { formatDate } from '../utils/formatters';
 import { ArrowLeft, Sprout, Calendar, ShieldCheck, Sparkles } from 'lucide-react';
+import { Loader } from '../components/common/Loader';
 import toast from 'react-hot-toast';
 
 export const PlannerDetail: React.FC = () => {
@@ -40,11 +41,7 @@ export const PlannerDetail: React.FC = () => {
   };
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-emerald-50/90 via-teal-50/50 to-green-50/80 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 py-16 text-center animate-pulse text-emerald-800 dark:text-emerald-300 font-bold">
-        Loading crop schedule details...
-      </div>
-    );
+    return <Loader text="Loading Crop Schedule Details..." subtext="Generating fertilizer timeline & NPK dosages" fullScreen />;
   }
 
   if (!plan) {
