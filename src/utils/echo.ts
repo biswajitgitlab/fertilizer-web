@@ -10,8 +10,21 @@ declare global {
 
 window.Pusher = Pusher;
 
+const getApiHostname = () => {
+  try {
+    if (import.meta.env.VITE_API_URL) {
+      return new URL(import.meta.env.VITE_API_URL).hostname;
+    }
+  } catch {
+    // fallback
+  }
+  return 'fertilizer-api-uu9o.onrender.com';
+};
+
 const isHttps = (import.meta.env.VITE_REVERB_SCHEME || (typeof window !== 'undefined' && window.location.protocol === 'https:' ? 'https' : 'http')) === 'https';
-const defaultHost = typeof window !== 'undefined' && window.location.hostname === 'localhost' ? 'localhost' : 'fertilizer-reverb.onrender.com';
+const defaultHost = typeof window !== 'undefined' && window.location.hostname === 'localhost' ? 'localhost' : getApiHostname();
+
+
 
 export const echo = new Echo({
   broadcaster: 'reverb',
