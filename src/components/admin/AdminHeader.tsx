@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
-  Bell, Search, Menu, Sparkles, Shield, PanelLeftClose, PanelLeftOpen,
-  Sun, Moon, Plus, ChevronDown, Check, AlertTriangle, ShoppingBag,
+  Bell, Search, Menu, Sparkles, Shield,
+  Sun, Moon, Plus, ChevronDown, ShoppingBag,
   Package, User, Key, ExternalLink, LogOut, Command, X, Activity,
-  Database, Lock, Clock, Sliders, ArrowRight, UserCheck, ShieldCheck,
-  RefreshCw, CheckCheck, Filter, Tag
+  Database, Sliders, ArrowRight, UserCheck, ShieldCheck,
+  RefreshCw, CheckCheck
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useUIStore } from '../../store/uiStore';
@@ -22,7 +22,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
   onOpenMobileSidebar
 }) => {
   const { user, logout } = useAuthStore();
-  const { theme, toggleTheme, sidebarCollapsed, toggleSidebarCollapsed } = useUIStore();
+  const { theme, toggleTheme } = useUIStore();
   const navigate = useNavigate();
 
   // Dropdown states
@@ -32,7 +32,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
   const [searchModalOpen, setSearchModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // RBSC Filter tab scope
+  // Notification Filter tab scope
   const [notificationFilter, setNotificationFilter] = useState<'all' | 'orders' | 'inventory' | 'diagnoses' | 'users'>('all');
 
   // Dynamic Real Notifications State
@@ -49,7 +49,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
   // Ref for smart throttling across header remounts during page navigation
   const lastFetchRef = useRef<number>(0);
 
-  // Fetch real backend RBSC notifications with smart throttling
+  // Fetch real backend notifications with smart throttling
   const loadNotifications = async (force: boolean = false) => {
     const now = Date.now();
     if (!force && lastFetchRef.current > 0 && (now - lastFetchRef.current < 30000)) {
@@ -70,7 +70,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
     }
   };
 
-  // Initial load and periodic 60s auto-polling for live real notifications
+  // Initial load and periodic 60s auto-polling
   useEffect(() => {
     loadNotifications();
     const interval = setInterval(() => loadNotifications(true), 60000);
@@ -92,7 +92,6 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
       setNotifications(prev => prev.map(n => n.id === id ? { ...n, unread: false } : n));
       setUnreadCount(prev => Math.max(0, prev - 1));
     } catch (err) {
-      // fallback local update
       setNotifications(prev => prev.map(n => n.id === id ? { ...n, unread: false } : n));
     }
   };
@@ -109,7 +108,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
     }
   };
 
-  // Filtered notifications based on active RBSC tab
+  // Filtered notifications based on active tab
   const filteredNotifications = notifications.filter(item => {
     if (notificationFilter === 'all') return true;
     if (notificationFilter === 'orders') return item.type === 'order' || item.required_permission === 'orders.view';
@@ -167,7 +166,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
     try {
       await adminAuthApi.logout();
     } catch (e) {
-      // ignore errors
+      // ignore
     }
     logout();
     setProfileOpen(false);
@@ -195,47 +194,59 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
     <>
       <header className={`sticky top-0 z-30 transition-colors duration-300 ${
         theme === 'dark'
-          ? 'bg-slate-950/85 border-b border-slate-800/80 text-white shadow-xl shadow-black/20 backdrop-blur-2xl'
-          : 'bg-white/90 border-b border-slate-200 text-slate-900 shadow-sm backdrop-blur-2xl'
+          ? 'bg-slate-950/90 border-b border-slate-800/80 text-white shadow-xl shadow-black/30 backdrop-blur-2xl'
+          : 'bg-white/95 border-b border-slate-200 text-slate-900 shadow-xs backdrop-blur-2xl'
       }`}>
         {/* Top Accent Gradient Bar */}
         <div className="h-0.5 w-full bg-gradient-to-r from-emerald-500 via-teal-400 via-cyan-500 to-emerald-600 animate-gradient" />
 
-        <div className="px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
+        <div className="px-3 sm:px-6 lg:px-8 py-2.5 sm:py-3 flex items-center justify-between gap-2 sm:gap-4">
           
-          {/* LEFT SECTION: Mobile Hamburger, Logo, Title & Live Status */}
-          <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+          {/* LEFT SECTION: Mobile Drawer Hamburger, Logo, Page Title & Live Status Badge */}
+          <div className="flex items-center gap-2 sm:gap-3.5 min-w-0">
             {/* Mobile Sidebar Hamburger Toggle */}
             <button
               onClick={onOpenMobileSidebar}
-              className={`lg:hidden p-2 rounded-xl transition-all duration-200 border cursor-pointer ${
+              className={`lg:hidden p-2 rounded-xl transition-all duration-200 border cursor-pointer active:scale-95 ${
                 theme === 'dark'
-                  ? 'text-slate-300 hover:text-white bg-slate-900/60 hover:bg-slate-800 border-slate-800'
+                  ? 'text-slate-300 hover:text-white bg-slate-900/80 hover:bg-slate-800 border-slate-800'
                   : 'text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 border-slate-200'
               }`}
-              aria-label="Open Mobile Drawer Menu"
-              title="Open Navigation Drawer"
+              aria-label="Open Mobile Navigation Menu"
+              title="Open Navigation Menu"
             >
               <Menu className="w-5 h-5" />
             </button>
 
             {/* Mobile Brand Icon */}
             <div className="lg:hidden shrink-0">
-              <Logo variant="icon" size="sm" />
+              <Logo variant="icon" size="xs" />
             </div>
 
-            {/* Live System Status Badge */}
-            <div className="flex items-center gap-2.5 min-w-0">
-              <span className="inline-flex items-center gap-1.5 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/25 uppercase tracking-wider shadow-xs shrink-0">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 absolute" />
-                <span className="ml-2">Live System</span>
+            {/* Title / System Live Status Pill */}
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="inline-flex items-center gap-1.5 text-[9px] sm:text-[10px] font-black px-2 sm:px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 dark:text-emerald-400 border border-emerald-500/25 uppercase tracking-wider shrink-0 shadow-xs">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                </span>
+                <span className="hidden xs:inline">Live System</span>
+                <span className="xs:hidden">LIVE</span>
               </span>
+
+              {/* Mobile View Title snippet if title exists */}
+              {title && (
+                <span className={`text-xs sm:text-sm font-black truncate hidden sm:inline-block max-w-[150px] md:max-w-none ${
+                  theme === 'dark' ? 'text-slate-200' : 'text-slate-800'
+                }`}>
+                  {title}
+                </span>
+              )}
             </div>
           </div>
 
-          {/* CENTER SECTION: Quick Search Trigger Command Button */}
-          <div className="hidden md:flex items-center flex-1 max-w-sm mx-4">
+          {/* CENTER SECTION: Quick Search Trigger Command Button (Desktop/Tablet) */}
+          <div className="hidden md:flex items-center flex-1 max-w-xs lg:max-w-sm mx-2 lg:mx-4">
             <button
               onClick={() => setSearchModalOpen(true)}
               className={`w-full flex items-center justify-between px-3.5 py-2 rounded-xl text-xs border transition-all duration-200 cursor-pointer group shadow-inner ${
@@ -246,7 +257,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
             >
               <div className="flex items-center gap-2.5 truncate">
                 <Search className="w-4 h-4 text-slate-400 group-hover:text-emerald-500 transition-colors" />
-                <span className="truncate">Search orders, SKUs, farmers...</span>
+                <span className="truncate">Search orders, SKUs, staff...</span>
               </div>
               <div className={`hidden sm:flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-semibold border ${
                 theme === 'dark'
@@ -259,39 +270,55 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
             </button>
           </div>
 
-          {/* RIGHT SECTION: Actions, Notifications, Theme Toggle, Profile */}
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          {/* RIGHT SECTION: Quick Actions, Mobile Search Icon, Notifications, Theme, Profile */}
+          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
             
             {/* Mobile Search Icon Trigger */}
             <button
               onClick={() => setSearchModalOpen(true)}
-              className={`md:hidden p-2 rounded-xl border transition-all cursor-pointer ${
+              className={`md:hidden p-2 rounded-xl border transition-all cursor-pointer active:scale-95 ${
                 theme === 'dark'
-                  ? 'text-slate-300 hover:text-white bg-slate-900/60 border-slate-800'
+                  ? 'text-slate-300 hover:text-white bg-slate-900/80 border-slate-800'
                   : 'text-slate-600 hover:text-slate-900 bg-slate-100 border-slate-200'
               }`}
               title="Search System"
+              aria-label="Search System"
             >
-              <Search className="w-4 h-4" />
+              <Search className="w-4.5 h-4.5" />
             </button>
 
             {/* Quick Action Dropdown Trigger (+ New) */}
             <div className="relative" ref={quickActionRef}>
+              {/* Desktop/Tablet Expanded Action Trigger */}
               <button
                 onClick={() => setQuickActionOpen(!quickActionOpen)}
-                className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer shadow-md border ${
+                className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer shadow-md border active:scale-95 ${
                   theme === 'dark'
                     ? 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white border-emerald-500/30 shadow-emerald-950/40'
                     : 'bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-500/40 shadow-emerald-600/20'
                 }`}
-                title="Quick Creation Actions"
+                title="Quick Admin Actions"
               >
                 <Plus className="w-4 h-4" />
                 <span>Action</span>
                 <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${quickActionOpen ? 'rotate-180' : ''}`} />
               </button>
 
-              {/* Quick Action Dropdown */}
+              {/* Mobile Compact + Action Icon Trigger */}
+              <button
+                onClick={() => setQuickActionOpen(!quickActionOpen)}
+                className={`sm:hidden p-2 rounded-xl text-white font-bold transition-all duration-200 cursor-pointer shadow-md border active:scale-95 ${
+                  theme === 'dark'
+                    ? 'bg-gradient-to-r from-emerald-600 to-teal-600 border-emerald-500/40 shadow-emerald-950/40'
+                    : 'bg-emerald-600 border-emerald-500/40 shadow-emerald-600/20'
+                }`}
+                title="Quick Create"
+                aria-label="Quick Create"
+              >
+                <Plus className="w-4.5 h-4.5" />
+              </button>
+
+              {/* Quick Action Dropdown Popover */}
               {quickActionOpen && (
                 <div className={`absolute right-0 mt-2 w-56 rounded-2xl shadow-2xl border p-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150 ${
                   theme === 'dark'
@@ -299,7 +326,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
                     : 'bg-white border-slate-200 text-slate-900 shadow-xl'
                 }`}>
                   <div className="px-3 py-2 text-[10px] font-extrabold uppercase tracking-wider text-emerald-500 border-b border-slate-800/60 dark:border-slate-800">
-                    Quick Admin Shortcuts
+                    Quick Creation Actions
                   </div>
                   <div className="py-1 space-y-0.5">
                     <Link
@@ -351,9 +378,10 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
             <button
               onClick={toggleTheme}
               title={theme === 'dark' ? "Switch to Light Mode" : "Switch to Dark Mode"}
-              className={`p-2 rounded-xl transition-all duration-200 cursor-pointer flex items-center justify-center border ${
+              aria-label="Toggle Theme"
+              className={`p-2 rounded-xl transition-all duration-200 cursor-pointer flex items-center justify-center border active:scale-95 ${
                 theme === 'dark'
-                  ? 'text-amber-400 hover:text-amber-300 bg-slate-900/60 hover:bg-slate-800 border-slate-800'
+                  ? 'text-amber-400 hover:text-amber-300 bg-slate-900/80 hover:bg-slate-800 border-slate-800'
                   : 'text-amber-600 hover:text-amber-700 bg-slate-100 hover:bg-amber-50 border-slate-200'
               }`}
             >
@@ -364,16 +392,17 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
               )}
             </button>
 
-            {/* Notification Bell Dropdown with RBSC */}
+            {/* Notification Bell Dropdown with Responsive Sheet */}
             <div className="relative" ref={notificationRef}>
               <button
                 onClick={() => setNotificationsOpen(!notificationsOpen)}
-                className={`relative p-2 rounded-xl border transition-all duration-200 cursor-pointer ${
+                className={`relative p-2 rounded-xl border transition-all duration-200 cursor-pointer active:scale-95 ${
                   theme === 'dark'
-                    ? 'text-slate-300 hover:text-white bg-slate-900/60 hover:bg-slate-800 border-slate-800'
+                    ? 'text-slate-300 hover:text-white bg-slate-900/80 hover:bg-slate-800 border-slate-800'
                     : 'text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 border-slate-200'
                 }`}
-                title="System Notifications & Activity"
+                title="System Notifications"
+                aria-label="System Notifications"
               >
                 <Bell className="w-4.5 h-4.5" />
                 {unreadCount > 0 && (
@@ -384,46 +413,46 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
                 )}
               </button>
 
-              {/* Notification Center Popover */}
+              {/* Responsive Notification Center (Mobile Bottom Sheet / Desktop Dropdown) */}
               {notificationsOpen && (
                 <>
                   {/* Backdrop for click/touch dismiss */}
                   <div
-                    className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-40"
+                    className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs z-40"
                     onClick={() => setNotificationsOpen(false)}
                   />
 
-                  {/* Notification Center Popover / Sheet */}
-                  <div className={`fixed inset-x-3 top-16 sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-2 w-auto sm:w-96 rounded-3xl sm:rounded-2xl shadow-2xl border p-4 z-50 animate-in fade-in slide-in-from-top-2 duration-150 max-h-[85vh] flex flex-col ${
+                  {/* Responsive Container */}
+                  <div className={`fixed inset-x-2 top-14 bottom-16 sm:bottom-auto sm:top-full sm:absolute sm:inset-x-auto sm:right-0 sm:mt-2 w-auto sm:w-96 rounded-3xl sm:rounded-2xl shadow-2xl border p-3.5 sm:p-4 z-50 animate-in fade-in slide-in-from-bottom-2 sm:slide-in-from-top-2 duration-200 flex flex-col ${
                     theme === 'dark'
-                      ? 'bg-slate-900/95 border-slate-800 text-slate-100 backdrop-blur-xl shadow-black/80'
-                      : 'bg-white border-slate-200 text-slate-900 shadow-xl'
+                      ? 'bg-slate-900/95 border-slate-800 text-slate-100 backdrop-blur-2xl shadow-black/90'
+                      : 'bg-white/95 border-slate-200 text-slate-900 shadow-2xl backdrop-blur-2xl'
                   }`}>
-                    {/* Mobile drag handle */}
+                    {/* Mobile top handle bar */}
                     <div className="w-12 h-1 bg-slate-300 dark:bg-slate-700 rounded-full mx-auto mb-2 sm:hidden shrink-0" />
 
-                    {/* Header with Title, Refetch, Mark All Read & Close */}
-                    <div className="flex items-center justify-between pb-3 border-b border-slate-800/80 dark:border-slate-800 shrink-0">
-                      <div className="flex items-center gap-2">
-                        <Bell className="w-4 h-4 text-emerald-500" />
-                        <div>
-                          <h3 className="text-xs font-bold uppercase tracking-wider">System Activity</h3>
-                          <span className="text-[9px] text-emerald-400 font-medium block">
+                    {/* Header with Title, Refresh, Mark Read & Close */}
+                    <div className="flex items-center justify-between pb-2.5 border-b border-slate-800/80 dark:border-slate-800 shrink-0">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <Bell className="w-4 h-4 text-emerald-500 shrink-0" />
+                        <div className="min-w-0">
+                          <h3 className="text-xs font-black uppercase tracking-wider truncate">Activity Notifications</h3>
+                          <span className="text-[9px] text-emerald-400 font-bold block truncate">
                             Role: {user?.role || 'Staff Admin'}
                           </span>
                         </div>
                         {unreadCount > 0 && (
-                          <span className="px-2 py-0.5 text-[10px] font-extrabold bg-emerald-500/20 text-emerald-400 rounded-full border border-emerald-500/30 ml-1">
+                          <span className="px-2 py-0.5 text-[10px] font-black bg-emerald-500/20 text-emerald-400 rounded-full border border-emerald-500/30 shrink-0">
                             {unreadCount} New
                           </span>
                         )}
                       </div>
                       
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1.5 shrink-0">
                         <button
-                          onClick={loadNotifications}
-                          title="Refresh Live Notifications"
-                          className={`p-1 rounded-lg transition-colors cursor-pointer ${
+                          onClick={() => loadNotifications(true)}
+                          title="Refresh Notifications"
+                          className={`p-1.5 rounded-lg transition-colors cursor-pointer active:scale-90 ${
                             loadingNotifications ? 'animate-spin text-emerald-400' : 'text-slate-400 hover:text-white'
                           }`}
                         >
@@ -433,17 +462,17 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
                         {unreadCount > 0 && (
                           <button
                             onClick={handleMarkAllRead}
-                            className="text-[11px] font-bold text-emerald-500 hover:underline cursor-pointer flex items-center gap-1"
+                            className="text-[11px] font-extrabold text-emerald-500 hover:underline cursor-pointer flex items-center gap-1 p-1"
                             title="Mark all as read"
                           >
                             <CheckCheck className="w-3.5 h-3.5" />
-                            <span className="hidden sm:inline">Mark read</span>
+                            <span className="hidden xs:inline">Mark read</span>
                           </button>
                         )}
 
                         <button
                           onClick={() => setNotificationsOpen(false)}
-                          className="p-1 rounded-lg text-slate-400 hover:text-white transition-colors"
+                          className="p-1 rounded-lg text-slate-400 hover:text-white transition-colors cursor-pointer"
                           aria-label="Close Notifications"
                         >
                           <X className="w-4 h-4" />
@@ -451,140 +480,141 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
                       </div>
                     </div>
 
-                  {/* Filter Category Scope Tabs */}
-                  <div className="flex items-center gap-1 my-2 overflow-x-auto py-1 scrollbar-none border-b border-slate-800/40">
-                    {[
-                      { key: 'all', label: 'All' },
-                      { key: 'orders', label: 'Orders' },
-                      { key: 'inventory', label: 'Stock' },
-                      { key: 'diagnoses', label: 'Crop AI' },
-                      { key: 'users', label: 'Team' },
-                    ].map(tab => (
-                      <button
-                        key={tab.key}
-                        onClick={() => setNotificationFilter(tab.key as any)}
-                        className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer whitespace-nowrap ${
-                          notificationFilter === tab.key
-                            ? 'bg-emerald-500 text-white shadow-xs'
-                            : theme === 'dark'
-                              ? 'bg-slate-800/60 text-slate-400 hover:text-slate-200'
-                              : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                        }`}
-                      >
-                        {tab.label}
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* Notification List Container */}
-                  <div className="py-1 divide-y divide-slate-800/50 max-h-72 overflow-y-auto">
-                    {loadingNotifications && notifications.length === 0 ? (
-                      <div className="py-8 text-center text-xs text-slate-400 flex items-center justify-center gap-2">
-                        <RefreshCw className="w-4 h-4 animate-spin text-emerald-500" />
-                        <span>Updating notifications...</span>
-                      </div>
-                    ) : filteredNotifications.length > 0 ? (
-                      filteredNotifications.map((item) => (
-                        <div
-                          key={item.id}
-                          onClick={() => {
-                            if (item.unread) {
-                              handleMarkAsRead(item.id);
-                            }
-                            setNotificationsOpen(false);
-                            if (item.link) navigate(item.link);
-                          }}
-                          className={`p-2.5 rounded-xl cursor-pointer transition-colors flex items-start gap-3 my-1 relative group ${
-                            item.unread
-                              ? theme === 'dark' ? 'bg-slate-800/70 border border-emerald-500/20' : 'bg-emerald-50/80 border border-emerald-200'
-                              : theme === 'dark' ? 'hover:bg-slate-800/40' : 'hover:bg-slate-50'
+                    {/* Touch Filter Category Scope Tabs */}
+                    <div className="flex items-center gap-1.5 my-2 overflow-x-auto py-1 scrollbar-none border-b border-slate-800/40 shrink-0">
+                      {[
+                        { key: 'all', label: 'All' },
+                        { key: 'orders', label: 'Orders' },
+                        { key: 'inventory', label: 'Stock' },
+                        { key: 'diagnoses', label: 'Crop AI' },
+                        { key: 'users', label: 'Team' },
+                      ].map(tab => (
+                        <button
+                          key={tab.key}
+                          onClick={() => setNotificationFilter(tab.key as any)}
+                          className={`px-3 py-1 rounded-lg text-[10px] font-extrabold transition-all cursor-pointer whitespace-nowrap active:scale-95 ${
+                            notificationFilter === tab.key
+                              ? 'bg-emerald-500 text-white shadow-xs'
+                              : theme === 'dark'
+                                ? 'bg-slate-800/80 text-slate-400 hover:text-slate-200'
+                                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                           }`}
                         >
-                          {/* Type Icon */}
-                          <div className={`p-2 rounded-xl shrink-0 mt-0.5 ${
-                            item.type === 'warning' ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20' :
-                            item.type === 'order' ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' :
-                            item.type === 'diagnosis' ? 'bg-teal-500/10 text-teal-400 border border-teal-500/20' :
-                            item.type === 'user' ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20' :
-                            'bg-cyan-500/10 text-cyan-500 border border-cyan-500/20'
-                          }`}>
-                            {item.type === 'warning' ? <AlertTriangle className="w-4 h-4" /> :
-                             item.type === 'order' ? <ShoppingBag className="w-4 h-4" /> :
-                             item.type === 'diagnosis' ? <Sliders className="w-4 h-4" /> :
-                             item.type === 'user' ? <UserCheck className="w-4 h-4" /> :
-                             <Sparkles className="w-4 h-4 text-cyan-400" />}
-                          </div>
+                          {tab.label}
+                        </button>
+                      ))}
+                    </div>
 
-                          {/* Content */}
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center justify-between gap-1">
-                              <p className={`text-xs font-bold truncate ${item.unread ? 'text-emerald-400 font-extrabold' : ''}`}>
-                                {item.title}
-                              </p>
-                              <span className="text-[10px] text-slate-400 shrink-0">{item.time}</span>
+                    {/* Notification List Container */}
+                    <div className="py-1 divide-y divide-slate-800/50 flex-1 overflow-y-auto">
+                      {loadingNotifications && notifications.length === 0 ? (
+                        <div className="py-8 text-center text-xs text-slate-400 flex items-center justify-center gap-2">
+                          <RefreshCw className="w-4 h-4 animate-spin text-emerald-500" />
+                          <span>Updating live notifications...</span>
+                        </div>
+                      ) : filteredNotifications.length > 0 ? (
+                        filteredNotifications.map((item) => (
+                          <div
+                            key={item.id}
+                            onClick={() => {
+                              if (item.unread) {
+                                handleMarkAsRead(item.id);
+                              }
+                              setNotificationsOpen(false);
+                              if (item.link) navigate(item.link);
+                            }}
+                            className={`p-2.5 rounded-2xl cursor-pointer transition-colors flex items-start gap-2.5 my-1 relative group active:scale-[0.99] ${
+                              item.unread
+                                ? theme === 'dark' ? 'bg-slate-800/80 border border-emerald-500/30' : 'bg-emerald-50 border border-emerald-200'
+                                : theme === 'dark' ? 'hover:bg-slate-800/40' : 'hover:bg-slate-50'
+                            }`}
+                          >
+                            {/* Type Icon */}
+                            <div className={`p-2 rounded-xl shrink-0 mt-0.5 ${
+                              item.type === 'warning' ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20' :
+                              item.type === 'order' ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' :
+                              item.type === 'diagnosis' ? 'bg-teal-500/10 text-teal-400 border border-teal-500/20' :
+                              item.type === 'user' ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20' :
+                              'bg-cyan-500/10 text-cyan-500 border border-cyan-500/20'
+                            }`}>
+                              {item.type === 'warning' ? <AlertTriangle className="w-4 h-4" /> :
+                               item.type === 'order' ? <ShoppingBag className="w-4 h-4" /> :
+                               item.type === 'diagnosis' ? <Sliders className="w-4 h-4" /> :
+                               item.type === 'user' ? <UserCheck className="w-4 h-4" /> :
+                               <Sparkles className="w-4 h-4 text-cyan-400" />}
                             </div>
 
-                            <p className="text-[11px] text-slate-400 line-clamp-2 mt-0.5">{item.message}</p>
-
-                            {/* RBSC Permission Scope Badge */}
-                            {item.required_permission && (
-                              <div className="flex items-center justify-between mt-1.5">
-                                <span className="inline-flex items-center gap-1 text-[9px] font-extrabold px-1.5 py-0.5 rounded bg-slate-800/80 text-slate-400 border border-slate-700">
-                                  <Shield className="w-2.5 h-2.5 text-emerald-400" />
-                                  <span>{item.required_permission}</span>
-                                </span>
-
-                                {item.unread && (
-                                  <button
-                                    onClick={(e) => handleMarkAsRead(item.id, e)}
-                                    className="text-[10px] text-emerald-400 hover:text-emerald-300 font-bold opacity-0 group-hover:opacity-100 transition-opacity"
-                                    title="Mark as read"
-                                  >
-                                    Mark read
-                                  </button>
-                                )}
+                            {/* Content */}
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center justify-between gap-1">
+                                <p className={`text-xs font-bold truncate ${item.unread ? 'text-emerald-400 font-black' : ''}`}>
+                                  {item.title}
+                                </p>
+                                <span className="text-[10px] text-slate-400 shrink-0">{item.time}</span>
                               </div>
-                            )}
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="py-8 text-center text-slate-400 text-xs">
-                        No notifications found for tab scope "{notificationFilter}".
-                      </div>
-                    )}
-                  </div>
 
-                  <div className="pt-2 border-t border-slate-800/80 dark:border-slate-800 text-center shrink-0">
-                    <button
-                      onClick={() => {
-                        setNotificationsOpen(false);
-                        navigate('/admin/orders');
-                      }}
-                      className="text-xs font-bold text-slate-400 hover:text-emerald-500 transition-colors flex items-center justify-center gap-1.5 w-full py-1 cursor-pointer"
-                    >
-                      <span>View All System Activity</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </button>
+                              <p className="text-[11px] text-slate-400 line-clamp-2 mt-0.5">{item.message}</p>
+
+                              {/* RBSC Permission Scope Badge */}
+                              {item.required_permission && (
+                                <div className="flex items-center justify-between mt-1.5">
+                                  <span className="inline-flex items-center gap-1 text-[9px] font-extrabold px-1.5 py-0.5 rounded bg-slate-800/80 text-slate-400 border border-slate-700">
+                                    <Shield className="w-2.5 h-2.5 text-emerald-400" />
+                                    <span>{item.required_permission}</span>
+                                  </span>
+
+                                  {item.unread && (
+                                    <button
+                                      onClick={(e) => handleMarkAsRead(item.id, e)}
+                                      className="text-[10px] text-emerald-400 hover:text-emerald-300 font-bold opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
+                                      title="Mark as read"
+                                    >
+                                      Mark read
+                                    </button>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="py-8 text-center text-slate-400 text-xs">
+                          No notifications found for tab scope "{notificationFilter}".
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="pt-2 border-t border-slate-800/80 dark:border-slate-800 text-center shrink-0">
+                      <button
+                        onClick={() => {
+                          setNotificationsOpen(false);
+                          navigate('/admin/orders');
+                        }}
+                        className="text-xs font-bold text-slate-400 hover:text-emerald-500 transition-colors flex items-center justify-center gap-1.5 w-full py-1.5 cursor-pointer"
+                      >
+                        <span>View All Activity Logs</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
-                </div>
-              </>
-            )}
+                </>
+              )}
             </div>
 
             {/* Admin Profile Dropdown Trigger */}
-            <div className="relative pl-2 border-l border-slate-800/80 dark:border-slate-800" ref={profileRef}>
+            <div className="relative pl-1.5 sm:pl-2 border-l border-slate-800/80 dark:border-slate-800" ref={profileRef}>
               <button
                 onClick={() => setProfileOpen(!profileOpen)}
-                className={`flex items-center gap-2.5 p-1 rounded-2xl transition-all duration-200 cursor-pointer border ${
+                className={`flex items-center gap-2 p-1 rounded-2xl transition-all duration-200 cursor-pointer border active:scale-95 ${
                   theme === 'dark'
                     ? 'hover:bg-slate-900 border-slate-800/90 text-slate-200'
                     : 'hover:bg-slate-100 border-slate-200 text-slate-800'
                 }`}
                 title="Admin Account & Settings"
+                aria-label="Admin Profile"
               >
-                {/* Initial Badge */}
-                <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-600 via-teal-500 to-cyan-500 text-white font-black flex items-center justify-center text-xs shadow-md border border-emerald-400/40 shrink-0">
+                {/* Initial Avatar Badge */}
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-gradient-to-tr from-emerald-600 via-teal-500 to-cyan-500 text-white font-black flex items-center justify-center text-xs shadow-md border border-emerald-400/40 shrink-0">
                   {user?.name?.[0] || 'A'}
                 </div>
 
@@ -600,17 +630,17 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
                   </p>
                 </div>
 
-                <ChevronDown className={`w-3.5 h-3.5 text-slate-400 hidden sm:block transition-transform duration-200 ${profileOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-3.5 h-3.5 text-slate-400 hidden lg:block transition-transform duration-200 ${profileOpen ? 'rotate-180' : ''}`} />
               </button>
 
-              {/* Admin Profile Executive Menu */}
+              {/* Admin Profile Executive Menu Dropdown */}
               {profileOpen && (
                 <div className={`absolute right-0 mt-2 w-64 rounded-2xl shadow-2xl border p-3 z-50 animate-in fade-in slide-in-from-top-2 duration-150 ${
                   theme === 'dark'
                     ? 'bg-slate-900/95 border-slate-800 text-slate-100 backdrop-blur-xl shadow-black/90'
                     : 'bg-white border-slate-200 text-slate-900 shadow-2xl'
                 }`}>
-                  {/* User Details Header */}
+                  {/* User Details Header Card */}
                   <div className={`p-3 rounded-xl border flex items-center gap-3 mb-2 ${
                     theme === 'dark'
                       ? 'bg-slate-950/80 border-slate-800'
@@ -677,7 +707,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
                   <div className="pt-2 mt-2 border-t border-slate-800/80 dark:border-slate-800">
                     <button
                       onClick={handleLogout}
-                      className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-xs font-bold text-rose-500 hover:text-rose-600 bg-rose-500/10 hover:bg-rose-500/20 transition-all cursor-pointer border border-rose-500/20"
+                      className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-xs font-bold text-rose-500 hover:text-rose-600 bg-rose-500/10 hover:bg-rose-500/20 transition-all cursor-pointer border border-rose-500/20 active:scale-95"
                     >
                       <LogOut className="w-4 h-4" />
                       <span>Log Out Session</span>
@@ -692,9 +722,9 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
         </div>
       </header>
 
-      {/* GLOBAL SEARCH COMMAND PALETTE MODAL (Ctrl+K) */}
+      {/* GLOBAL SEARCH COMMAND PALETTE MODAL (Touch Friendly + Ctrl+K) */}
       {searchModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center pt-16 sm:pt-24 px-4">
+        <div className="fixed inset-0 z-50 flex items-start justify-center pt-6 sm:pt-24 px-2 sm:px-4">
           {/* Backdrop */}
           <div
             className="fixed inset-0 bg-slate-950/80 backdrop-blur-md transition-opacity duration-200"
@@ -708,32 +738,32 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
               : 'bg-white border-slate-200 text-slate-900 shadow-2xl'
           }`}>
             {/* Search Bar Input Header */}
-            <div className="p-4 border-b border-slate-800/80 dark:border-slate-800 flex items-center gap-3">
+            <div className="p-3.5 sm:p-4 border-b border-slate-800/80 dark:border-slate-800 flex items-center gap-3">
               <Search className="w-5 h-5 text-emerald-500 shrink-0" />
               <input
                 ref={searchInputRef}
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Type to search orders, staff, SKUs, inventory, or pages..."
+                placeholder="Search orders, staff, SKUs, inventory, or pages..."
                 className={`w-full bg-transparent text-sm sm:text-base font-medium focus:outline-none placeholder-slate-500 ${
                   theme === 'dark' ? 'text-white' : 'text-slate-900'
                 }`}
               />
               {searchQuery ? (
-                <button onClick={() => setSearchQuery('')} className="p-1 rounded-lg text-slate-400 hover:text-white">
+                <button onClick={() => setSearchQuery('')} className="p-1.5 rounded-lg text-slate-400 hover:text-white cursor-pointer">
                   <X className="w-4 h-4" />
                 </button>
               ) : (
-                <span className="text-[10px] font-bold px-2 py-1 rounded bg-slate-800 text-slate-400 border border-slate-700 hidden sm:inline">
-                  ESC
-                </span>
+                <button onClick={() => setSearchModalOpen(false)} className="p-1 rounded-lg text-slate-400 hover:text-white cursor-pointer">
+                  <X className="w-5 h-5" />
+                </button>
               )}
             </div>
 
             {/* Command Results */}
-            <div className="p-3 max-h-96 overflow-y-auto space-y-1">
-              <div className="px-3 py-1.5 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
+            <div className="p-2 sm:p-3 max-h-[60vh] sm:max-h-96 overflow-y-auto space-y-1">
+              <div className="px-3 py-1 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
                 Quick Portal Navigation
               </div>
 
@@ -747,14 +777,14 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
                         setSearchModalOpen(false);
                         navigate(cmd.link);
                       }}
-                      className={`flex items-center justify-between p-3 rounded-2xl cursor-pointer transition-all ${
+                      className={`flex items-center justify-between p-3 rounded-2xl cursor-pointer transition-all active:scale-[0.99] ${
                         theme === 'dark'
                           ? 'hover:bg-slate-800/80 hover:text-emerald-400'
                           : 'hover:bg-emerald-50 hover:text-emerald-800'
                       }`}
                     >
                       <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                        <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 shrink-0">
                           <Icon className="w-4 h-4" />
                         </div>
                         <div>
@@ -768,20 +798,20 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
                 })
               ) : (
                 <div className="py-8 text-center text-slate-500 text-xs font-medium">
-                  No system modules match "{searchQuery}". Try searching "orders" or "products".
+                  No system modules match "{searchQuery}".
                 </div>
               )}
             </div>
 
             {/* Footer Hint */}
-            <div className={`p-3 border-t text-[11px] text-slate-400 flex items-center justify-between px-5 ${
+            <div className={`p-3 border-t text-[11px] text-slate-400 flex items-center justify-between px-4 sm:px-5 ${
               theme === 'dark' ? 'bg-slate-950/60 border-slate-800' : 'bg-slate-50 border-slate-200'
             }`}>
               <span className="flex items-center gap-1.5">
                 <Command className="w-3.5 h-3.5 text-emerald-500" />
-                <span>Fertilizer Admin Intelligent Search</span>
+                <span className="truncate">Fertilizer Admin Intelligent Search</span>
               </span>
-              <span>Press <b>ESC</b> to close</span>
+              <span className="hidden sm:inline">Press <b>ESC</b> to close</span>
             </div>
           </div>
         </div>

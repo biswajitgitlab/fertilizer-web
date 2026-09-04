@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Sidebar } from './Sidebar';
 import { AdminHeader } from './AdminHeader';
 import { AdminFooter } from './AdminFooter';
+import { AdminMobileDock } from './AdminMobileDock';
 import { useUIStore } from '../../store/uiStore';
 
 export const AdminLayout: React.FC<{ children: React.ReactNode; title?: string }> = ({
@@ -56,19 +57,24 @@ export const AdminLayout: React.FC<{ children: React.ReactNode; title?: string }
       {/* Main Content Body */}
       <div className="flex-1 flex flex-col min-w-0 h-full overflow-y-auto z-10">
         
-        {/* Senior Designer Glassmorphic Top Header */}
+        {/* Mobile-Responsive Top Header */}
         <AdminHeader
           title={title}
           onOpenMobileSidebar={() => setMobileSidebarOpen(true)}
         />
 
         {/* Page Main Content Area */}
-        <main className="p-4 sm:p-6 lg:p-8 flex-1 max-w-7xl w-full mx-auto space-y-6">
+        <main className="p-3 sm:p-6 lg:p-8 flex-1 max-w-7xl w-full mx-auto space-y-4 sm:space-y-6">
           {children}
         </main>
 
-        {/* Senior Designer Glassmorphic Admin Footer */}
+        {/* Mobile-Responsive Admin Footer */}
         <AdminFooter />
+
+        {/* Mobile Floating Bottom Dock Navigation */}
+        <AdminMobileDock
+          onOpenMobileSidebar={() => setMobileSidebarOpen(true)}
+        />
 
       </div>
     </div>
