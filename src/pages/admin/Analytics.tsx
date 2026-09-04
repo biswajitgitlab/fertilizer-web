@@ -3,7 +3,7 @@ import { AdminLayout } from '../../components/admin/AdminLayout';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, PieChart, Pie, Cell } from 'recharts';
 import { useUIStore } from '../../store/uiStore';
 import { adminApi } from '../../api/adminApi';
-import { RefreshCw } from 'lucide-react';
+import { Loader } from '../../components/common/Loader';
 
 export const Analytics: React.FC = () => {
   const { theme } = useUIStore();
@@ -44,9 +44,7 @@ export const Analytics: React.FC = () => {
   return (
     <AdminLayout title="Sales & Category Analytics">
       {isLoading ? (
-        <div className="flex justify-center py-12">
-          <RefreshCw className="w-8 h-8 text-emerald-500 animate-spin" />
-        </div>
+        <Loader text="Analyzing Sales & Category Demand..." subtext="Syncing fertilizer category shares & NPK telemetry" variant="card" />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           

@@ -8,8 +8,9 @@ import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianG
 import { formatCurrency, formatDate } from '../../utils/formatters';
 import { Link } from 'react-router-dom';
 import { useUIStore } from '../../store/uiStore';
-
+import { Loader } from '../../components/common/Loader';
 import { useAuthStore } from '../../store/authStore';
+
 export const Dashboard: React.FC = () => {
   const { user } = useAuthStore();
   const isDriver = (user?.role || '').toLowerCase().includes('driver') || user?.roles?.some((r: string) => r.toLowerCase().includes('driver'));
@@ -39,15 +40,7 @@ export const Dashboard: React.FC = () => {
   if (isLoading || !stats) {
     return (
       <AdminLayout title="Overview Dashboard">
-        <div className="animate-pulse space-y-6">
-          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-            <div className="h-32 bg-slate-200 dark:bg-slate-900/60 rounded-3xl border border-slate-300 dark:border-slate-800" />
-            <div className="h-32 bg-slate-200 dark:bg-slate-900/60 rounded-3xl border border-slate-300 dark:border-slate-800" />
-            <div className="h-32 bg-slate-200 dark:bg-slate-900/60 rounded-3xl border border-slate-300 dark:border-slate-800" />
-            <div className="h-32 bg-slate-200 dark:bg-slate-900/60 rounded-3xl border border-slate-300 dark:border-slate-800" />
-          </div>
-          <div className="h-64 bg-slate-200 dark:bg-slate-900/60 rounded-3xl border border-slate-300 dark:border-slate-800" />
-        </div>
+        <Loader text="Synchronizing Store Overview Dashboard..." subtext="Fetching sales revenue analytics & active order telemetry" variant="card" />
       </AdminLayout>
     );
   }
