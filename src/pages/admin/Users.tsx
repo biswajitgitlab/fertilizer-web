@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { PasswordInput } from '../../components/common/PasswordInput';
+import { Loader } from '../../components/common/Loader';
 import { useAuthStore } from '../../store/authStore';
 import { useSiteSettingsStore } from '../../store/siteSettingsStore';
 
@@ -486,7 +487,7 @@ export const UsersPage: React.FC = () => {
           {/* Mobile Staff Cards View (Visible under sm) */}
           <div className="block sm:hidden divide-y divide-slate-100 dark:divide-slate-800/60">
             {isLoading ? (
-              <div className="py-8 text-center text-xs text-slate-400">Loading staff accounts...</div>
+              <Loader text="Loading Staff Roster..." subtext="Synchronizing internal users & RBSC matrix" variant="table" />
             ) : users.length === 0 ? (
               <div className="py-12 text-center space-y-3 p-4">
                 <ShieldAlert className="w-8 h-8 text-slate-400 mx-auto" />
@@ -591,16 +592,11 @@ export const UsersPage: React.FC = () => {
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50 text-xs text-slate-800 dark:text-slate-200 font-medium">
                 {isLoading ? (
-                  Array.from({ length: 5 }).map((_, idx) => (
-                    <tr key={idx} className="animate-pulse">
-                      <td className="py-3.5 px-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-36"></div></td>
-                      <td className="py-3.5 px-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-40"></div></td>
-                      <td className="py-3.5 px-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-24"></div></td>
-                      <td className="py-3.5 px-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-20"></div></td>
-                      <td className="py-3.5 px-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-24"></div></td>
-                      <td className="py-3.5 px-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-20"></div></td>
-                    </tr>
-                  ))
+                  <tr>
+                    <td colSpan={6} className="py-8 text-center">
+                      <Loader text="Loading Staff Directory..." subtext="Accessing Redis cached RBAC credentials" variant="table" />
+                    </td>
+                  </tr>
                 ) : users.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="py-12 text-center">

@@ -11,6 +11,7 @@ import {
 import toast from 'react-hot-toast';
 
 import { useAuthStore } from '../../store/authStore';
+import { Loader } from '../../components/common/Loader';
 export const Orders: React.FC = () => {
   const user = useAuthStore(state => state.user);
   const isDriver = (user?.role || '').toLowerCase().includes('driver');
@@ -193,7 +194,7 @@ export const Orders: React.FC = () => {
           {/* Mobile Orders Card View (Visible under sm) */}
           <div className="block sm:hidden divide-y divide-emerald-100/60 dark:divide-slate-800/50">
             {isLoading ? (
-              <div className="py-8 text-center text-xs text-slate-400">Loading order records...</div>
+              <Loader text="Loading Orders..." subtext="Syncing fulfillment logs & tracking" variant="table" />
             ) : orders.length === 0 ? (
               <div className="py-8 text-center text-xs text-slate-400">No orders found matching filter.</div>
             ) : (
@@ -252,16 +253,11 @@ export const Orders: React.FC = () => {
               </thead>
               <tbody className="divide-y divide-emerald-100/50 dark:divide-slate-800/40 text-xs text-slate-800 dark:text-slate-200 font-medium">
                 {isLoading ? (
-                  Array.from({ length: 5 }).map((_, idx) => (
-                    <tr key={idx} className="animate-pulse">
-                      <td className="py-3.5 px-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-16"></div></td>
-                      <td className="py-3.5 px-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-40"></div></td>
-                      <td className="py-3.5 px-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-24"></div></td>
-                      <td className="py-3.5 px-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-20"></div></td>
-                      <td className="py-3.5 px-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-28"></div></td>
-                      <td className="py-3.5 px-4"><div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-16 ml-auto"></div></td>
-                    </tr>
-                  ))
+                  <tr>
+                    <td colSpan={6} className="py-8 text-center">
+                      <Loader text="Loading Order Records..." subtext="Syncing fulfillment & Redis cache" variant="table" />
+                    </td>
+                  </tr>
                 ) : orders.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="py-8 text-center text-slate-400 font-medium">No order records found.</td>
