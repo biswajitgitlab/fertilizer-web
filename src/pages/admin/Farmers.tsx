@@ -134,7 +134,7 @@ export const Farmers: React.FC = () => {
         <div className="bg-white/90 dark:bg-slate-900/60 backdrop-blur-md p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm">
           
           {/* Status Tabs */}
-          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800/80 p-1 rounded-xl w-full md:w-auto">
+          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800/80 p-1 rounded-xl w-full md:w-auto overflow-x-auto scrollbar-none">
             {[
               { id: 'ALL', label: 'All Farmers' },
               { id: 'VERIFIED_AADHAAR', label: 'Verified KCC' },
@@ -146,7 +146,7 @@ export const Farmers: React.FC = () => {
                   setStatusFilter(tab.id);
                   setPage(1);
                 }}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
                   statusFilter === tab.id
                     ? 'bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 shadow-xs'
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
@@ -158,8 +158,8 @@ export const Farmers: React.FC = () => {
           </div>
 
           {/* Search & Per Page */}
-          <div className="flex items-center gap-3 w-full md:w-auto justify-end">
-            <div className="relative w-full md:w-64">
+          <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end">
+            <div className="relative flex-1 md:w-64">
               <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
@@ -171,7 +171,7 @@ export const Farmers: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-1 shrink-0">
-              <span className="text-xs text-slate-500 font-medium">Per Page:</span>
+              <span className="text-xs text-slate-500 font-medium hidden sm:inline">Per Page:</span>
               <select
                 value={perPage}
                 onChange={(e) => {
@@ -189,8 +189,85 @@ export const Farmers: React.FC = () => {
           </div>
         </div>
 
-        {/* Table Container */}
-        <div className="bg-white/90 dark:bg-slate-900/60 backdrop-blur-md rounded-3xl border border-slate-200/80 dark:border-slate-800/80 overflow-hidden shadow-sm">
+        {/* Mobile View: Cards (Visible on screens < md) */}
+        <div className="md:hidden space-y-3">
+          {loading ? (
+            <div className="bg-white/90 dark:bg-slate-900/60 p-8 rounded-3xl text-center border border-slate-200/80 dark:border-slate-800/80">
+              <Loader text="Fetching Farmer KCC Registry..." subtext="Syncing Aadhaar hashes & PM-PRANAM subsidy tiers" variant="table" />
+            </div>
+          ) : farmers.length === 0 ? (
+            <div className="bg-white/90 dark:bg-slate-900/60 p-8 rounded-3xl text-center text-slate-400 font-medium border border-slate-200/80 dark:border-slate-800/80">
+              <AlertCircle className="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto mb-2" />
+              <p className="text-sm font-bold text-slate-600 dark:text-slate-300">No farmer records found.</p>
+              <p className="text-xs text-slate-400">Try adjusting your search query or verification filter.</p>
+            </div>
+          ) : (
+            farmers.map((farmer: any, i: number) => (
+              <div
+                key={farmer.id || i}
+                className="bg-white/90 dark:bg-slate-900/60 backdrop-blur-md p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 space-y-3 shadow-xs"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <h3 className="font-bold text-slate-900 dark:text-white text-sm">
+                      {farmer.name || farmer.farmer_name || farmer.email || 'Farmer Account'}
+                    </h3>
+                    <p className="text-[11px] text-slate-500">{farmer.email || farmer.phone}</p>
+                  </div>
+                  <span className={`text-[10px] font-black px-2.5 py-0.5 rounded-full inline-flex items-center gap-1 shrink-0 ${
+                    farmer.verification_status === 'VERIFIED_AADHAAR'
+                      ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800'
+                      : 'bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800'
+                  }`}>
+                    {farmer.verification_status === 'VERIFIED_AADHAAR' && <CheckCircle2 className="w-3 h-3 text-emerald-600" />}
+                    {farmer.verification_status || 'PENDING_DOCUMENTATION'}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 text-xs border-t border-b border-slate-100 dark:border-slate-800/60 py-2.5">
+                  <div>
+                    <span className="text-[10px] text-slate-400 block font-bold uppercase">KCC Card Number</span>
+                    <span className="font-mono text-[11px] font-bold text-slate-700 dark:text-slate-300 truncate block">
+                      {farmer.kcc_number || 'KCC-PENDING-REG'}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-400 block font-bold uppercase">Subsidy Tier</span>
+                    <span className="text-slate-600 dark:text-slate-400 text-[11px] font-medium truncate block">
+                      {farmer.subsidy_tier || 'PM-PRANAM Category A'}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-end pt-1">
+                  {farmer.verification_status === 'VERIFIED_AADHAAR' ? (
+                    <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-bold inline-flex items-center gap-1">
+                      <CheckCircle2 className="w-3.5 h-3.5" /> Verified
+                    </span>
+                  ) : (
+                    <button
+                      onClick={() => handleVerify(farmer.id, 'VERIFIED_AADHAAR')}
+                      disabled={isAnyActionLoading}
+                      className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition shadow-xs flex items-center gap-1.5 cursor-pointer active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed"
+                    >
+                      {verifyingId === farmer.id ? (
+                        <>
+                          <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                          <span>Approving...</span>
+                        </>
+                      ) : (
+                        'Approve Subsidy'
+                      )}
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Desktop Table View (Visible on screens >= md) */}
+        <div className="hidden md:block bg-white/90 dark:bg-slate-900/60 backdrop-blur-md rounded-3xl border border-slate-200/80 dark:border-slate-800/80 overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse min-w-[750px]">
               <thead>
