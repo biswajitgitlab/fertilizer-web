@@ -6,6 +6,7 @@ import { Order } from '../../types';
 import { formatCurrency, formatDate } from '../../utils/formatters';
 import { InvoiceDownloader } from '../../components/order/InvoiceDownloader';
 import { ArrowLeft, MapPin, CheckCircle, Clock, Package, Truck } from 'lucide-react';
+import { Loader } from '../../components/common/Loader';
 import toast from 'react-hot-toast';
 
 import { useAuthStore } from '../../store/authStore';
@@ -93,9 +94,7 @@ export const OrderDetail: React.FC = () => {
   if (isLoading) {
     return (
       <AdminLayout title="Order Details">
-        <div className="p-12 text-center text-xs font-bold text-slate-500 animate-pulse">
-          Loading order details...
-        </div>
+        <Loader text="Fetching Order Manifest & FEFO Picking Location..." subtext="Syncing items, warehouse zones & status tracking" variant="card" />
       </AdminLayout>
     );
   }
