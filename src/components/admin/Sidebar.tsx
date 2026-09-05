@@ -14,7 +14,8 @@ import { adminAuthApi } from '../../api/adminApi';
 export const Sidebar: React.FC<{
   onCloseMobile?: () => void;
   collapsed?: boolean;
-}> = ({ onCloseMobile, collapsed }) => {
+  title?: string;
+}> = ({ onCloseMobile, collapsed, title }) => {
   const { user, logout } = useAuthStore();
   const { theme, toggleTheme, sidebarCollapsed, toggleSidebarCollapsed } = useUIStore();
   const navigate = useNavigate();
@@ -23,6 +24,7 @@ export const Sidebar: React.FC<{
 
   const isSuperAdmin = user?.role === 'Super Admin' || user?.roles?.includes('Super Admin');
   const userPermissions = user?.effective_permissions || [];
+  const isDriver = (user?.role || '').toLowerCase().includes('driver') || user?.roles?.some((r: string) => r.toLowerCase().includes('driver'));
 
   const links = [
     { name: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
@@ -43,7 +45,6 @@ export const Sidebar: React.FC<{
     { name: 'Coupons', path: '/admin/coupons', icon: Tag, perm: 'products.view' },
     { name: 'Role & Permissions', path: '/admin/roles', icon: ShieldCheck, perm: 'roles.view' },
   ].filter(link => {
-    const isDriver = (user?.role || '').toLowerCase().includes('driver') || user?.roles?.some((r: string) => r.toLowerCase().includes('driver'));
     if (isDriver && (link.name === 'FEFO Lot Batches' || link.name === 'Inventory')) return false;
     return !link.perm || isSuperAdmin || userPermissions.includes(link.perm);
   });
@@ -59,8 +60,10 @@ export const Sidebar: React.FC<{
     navigate('/admin/login', { replace: true });
   };
 
+  const focusRing = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-950';
+
   return (
-    <div className={`w-full h-full flex flex-col justify-between p-3 overflow-x-hidden transition-all duration-300 ${
+    <div className={`w-full h-full flex flex-col justify-between p-3 overflow-x-hidden transition-[width] duration-300 ${
       theme === 'dark' ? 'bg-slate-950/90 text-slate-300' : 'bg-white text-slate-700'
     } ${isCollapsed ? 'items-center' : ''}`}>
       <div className="space-y-4 w-full">
@@ -68,15 +71,29 @@ export const Sidebar: React.FC<{
         <div className={`flex items-center ${isCollapsed ? 'justify-center py-3' : 'justify-between px-2 py-3'} border-b ${
           theme === 'dark' ? 'border-slate-800/80' : 'border-slate-200'
         }`}>
-          <Logo variant="sidebar" collapsed={isCollapsed} />
-          {!onCloseMobile && (
+           <Logo variant="sidebar" collapsed={isCollapsed} />
+
+           {/* Page Module Title (only shown when expanded) */}
+           {!isCollapsed && title && (
+             <p className={`mt-1 text-[11px] font-extrabold uppercase tracking-widest truncate ${
+               theme === 'dark' ? 'text-emerald-400' : 'text-emerald-600'
+             }`}>
+               {title}
+             </p>
+           )}
+         </div>
+
+        {/* Collapse toggle placed below logo */}
+        {!onCloseMobile && (
+          <div className={`w-full flex ${isCollapsed ? 'justify-center' : 'justify-end'} -mt-1 pb-1`}>
             <button
               onClick={toggleSidebarCollapsed}
-              title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
-              className={`p-1.5 rounded-xl transition-all border cursor-pointer hidden lg:flex items-center justify-center ${
+              title={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
+              aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+              className={`hidden lg:flex items-center justify-center p-1.5 rounded-xl border transition-all duration-200 cursor-pointer ${focusRing} ${
                 theme === 'dark'
-                  ? 'text-slate-400 hover:text-emerald-400 hover:bg-slate-800 border-slate-800/80'
-                  : 'text-slate-500 hover:text-emerald-600 hover:bg-slate-100 border-slate-200'
+                  ? 'border-slate-800/80 bg-slate-900/80 text-slate-400 hover:text-emerald-400 hover:bg-slate-800'
+                  : 'border-slate-200 bg-white text-slate-500 hover:text-emerald-600 hover:bg-slate-100'
               }`}
             >
               {isCollapsed ? (
@@ -85,8 +102,8 @@ export const Sidebar: React.FC<{
                 <PanelLeftClose className="w-4 h-4" />
               )}
             </button>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Admin User Profile Card */}
         {!isCollapsed ? (
@@ -127,8 +144,9 @@ export const Sidebar: React.FC<{
                 to={link.path}
                 onClick={onCloseMobile}
                 title={isCollapsed ? link.name : undefined}
+                aria-label={link.name}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+                  `relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 min-h-[40px] ${focusRing} ${
                     isCollapsed ? 'justify-center px-0' : ''
                   } ${
                     isActive
@@ -139,8 +157,16 @@ export const Sidebar: React.FC<{
                   }`
                 }
               >
-                <Icon className="w-4 h-4 shrink-0" />
-                {!isCollapsed && <span className="truncate">{link.name}</span>}
+                {({ isActive }) => (
+                  <>
+                    {/* Sliding active-state accent bar, animates in only for the active item */}
+                    {isActive && !isCollapsed && (
+                      <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-1 rounded-r-full bg-white/70 animate-in fade-in slide-in-from-left-1 duration-200" />
+                    )}
+                    <Icon className="w-4 h-4 shrink-0" />
+                    {!isCollapsed && <span className="truncate">{link.name}</span>}
+                  </>
+                )}
               </NavLink>
             );
           })}
@@ -155,7 +181,8 @@ export const Sidebar: React.FC<{
         <button
           onClick={toggleTheme}
           title={isCollapsed ? (theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode') : undefined}
-          className={`w-full flex items-center gap-2.5 px-3 py-2.5 text-xs font-semibold rounded-xl transition-all cursor-pointer ${
+          aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          className={`w-full flex items-center gap-2.5 px-3 py-2.5 text-xs font-semibold rounded-xl transition-all cursor-pointer min-h-[40px] ${focusRing} ${
             isCollapsed ? 'justify-center px-0' : ''
           } ${
             theme === 'dark'
@@ -164,9 +191,9 @@ export const Sidebar: React.FC<{
           }`}
         >
           {theme === 'dark' ? (
-            <Sun className="w-4 h-4 shrink-0 text-amber-400 animate-spin-slow" />
+            <Sun className="w-4 h-4 shrink-0 text-amber-400 transition-transform duration-500 group-hover:rotate-90" />
           ) : (
-            <Moon className="w-4 h-4 shrink-0 text-amber-600" />
+            <Moon className="w-4 h-4 shrink-0 text-amber-600 transition-transform duration-500" />
           )}
           {!isCollapsed && (
             <span className="truncate font-bold">
@@ -179,7 +206,8 @@ export const Sidebar: React.FC<{
         <NavLink
           to="/"
           title={isCollapsed ? 'Exit to Customer Store' : undefined}
-          className={`flex items-center gap-2.5 px-3 py-2.5 text-xs font-semibold rounded-xl transition-colors ${
+          aria-label="Exit to customer store"
+          className={`flex items-center gap-2.5 px-3 py-2.5 text-xs font-semibold rounded-xl transition-colors min-h-[40px] ${focusRing} ${
             isCollapsed ? 'justify-center px-0' : ''
           } ${
             theme === 'dark'
@@ -195,7 +223,8 @@ export const Sidebar: React.FC<{
         <button
           onClick={handleLogout}
           title={isCollapsed ? 'Log Out' : undefined}
-          className={`w-full flex items-center gap-2.5 px-3 py-2.5 text-xs font-semibold text-rose-500 hover:text-rose-600 rounded-xl transition-colors cursor-pointer ${
+          aria-label="Log out"
+          className={`w-full flex items-center gap-2.5 px-3 py-2.5 text-xs font-semibold text-rose-500 hover:text-rose-600 rounded-xl transition-colors cursor-pointer min-h-[40px] ${focusRing} ${
             isCollapsed ? 'justify-center px-0' : ''
           } ${
             theme === 'dark' ? 'hover:bg-rose-950/40' : 'hover:bg-rose-50'
