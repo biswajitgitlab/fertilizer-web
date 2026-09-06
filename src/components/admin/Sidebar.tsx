@@ -3,10 +3,11 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Package, ShoppingBag, Users, Stethoscope,
   BarChart2, Warehouse, Tag, ArrowLeft, LogOut, ShieldCheck,
-  Sun, Moon, UserCheck, PanelLeftClose, PanelLeftOpen, FileText, Settings
+  Sun, Moon, UserCheck, PanelLeftClose, PanelLeftOpen, FileText, Settings, Bell
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useUIStore } from '../../store/uiStore';
+import { useAdminNotificationStore } from '../../store/adminNotificationStore';
 import { Logo } from '../common/Logo';
 
 import { adminAuthApi } from '../../api/adminApi';
@@ -18,6 +19,7 @@ export const Sidebar: React.FC<{
 }> = ({ onCloseMobile, collapsed, title }) => {
   const { user, logout } = useAuthStore();
   const { theme, toggleTheme, sidebarCollapsed, toggleSidebarCollapsed } = useUIStore();
+  const { unreadCount, setIsDrawerOpen } = useAdminNotificationStore();
   const navigate = useNavigate();
 
   const isCollapsed = collapsed !== undefined ? collapsed : sidebarCollapsed;
@@ -136,6 +138,38 @@ export const Sidebar: React.FC<{
 
         {/* Navigation Links */}
         <nav className="space-y-1 w-full">
+          {/* Quick Notification Drawer Trigger */}
+          <button
+            type="button"
+            onClick={() => {
+              setIsDrawerOpen(true);
+              if (onCloseMobile) onCloseMobile();
+            }}
+            title={isCollapsed ? 'Activity Notifications' : undefined}
+            aria-label="Activity Notifications"
+            className={`w-full relative flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 min-h-[40px] cursor-pointer ${focusRing} ${
+              isCollapsed ? 'justify-center px-0' : ''
+            } ${
+              theme === 'dark'
+                ? 'text-slate-300 hover:bg-slate-900/80 hover:text-white'
+                : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'
+            }`}
+          >
+            <div className={`flex items-center gap-3 min-w-0 ${isCollapsed ? 'justify-center' : ''}`}>
+              <div className="relative shrink-0">
+                <Bell className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                {unreadCount > 0 && isCollapsed && (
+                  <span className="absolute -top-1 -right-1 w-2 h-2 bg-rose-600 rounded-full animate-pulse" />
+                )}
+              </div>
+              {!isCollapsed && <span className="truncate">Notifications</span>}
+            </div>
+            {!isCollapsed && unreadCount > 0 && (
+              <span className="bg-rose-600 text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow-xs animate-pulse shrink-0">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            )}
+          </button>
           {links.map((link) => {
             const Icon = link.icon;
             return (

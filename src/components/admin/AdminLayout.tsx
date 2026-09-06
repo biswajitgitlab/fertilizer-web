@@ -3,6 +3,7 @@ import { Sidebar } from './Sidebar';
 import { AdminHeader } from './AdminHeader';
 import { AdminFooter } from './AdminFooter';
 import { AdminMobileDock } from './AdminMobileDock';
+import { AdminSmartNotificationBar } from './AdminSmartNotificationBar';
 import { useUIStore } from '../../store/uiStore';
 
 export const AdminLayout: React.FC<{ children: React.ReactNode; title?: string }> = ({
@@ -62,6 +63,9 @@ export const AdminLayout: React.FC<{ children: React.ReactNode; title?: string }
           title={title}
           onOpenMobileSidebar={() => setMobileSidebarOpen(true)}
         />
+
+        {/* Live Admin Smart Notification Bar (Web & Mobile) */}
+        <AdminSmartNotificationBar />
 
         {/* Page Main Content Area */}
         <main className="p-3 sm:p-6 lg:p-8 flex-1 max-w-7xl w-full mx-auto space-y-4 sm:space-y-6">

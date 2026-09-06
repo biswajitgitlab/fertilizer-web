@@ -4,6 +4,7 @@ import {
   LayoutDashboard, ShoppingBag, Package, Warehouse, Menu, Sparkles
 } from 'lucide-react';
 import { useUIStore } from '../../store/uiStore';
+import { useAdminNotificationStore } from '../../store/adminNotificationStore';
 
 interface AdminMobileDockProps {
   onOpenMobileSidebar: () => void;
@@ -13,6 +14,7 @@ export const AdminMobileDock: React.FC<AdminMobileDockProps> = ({
   onOpenMobileSidebar
 }) => {
   const { theme } = useUIStore();
+  const { unreadCount } = useAdminNotificationStore();
   const location = useLocation();
 
   const dockItems = [
@@ -99,10 +101,15 @@ export const AdminMobileDock: React.FC<AdminMobileDockProps> = ({
           aria-label="Open Full Admin Navigation Drawer"
           title="All Tools Menu"
         >
-          <div className={`p-1.5 rounded-xl transition-all ${
+          <div className={`p-1.5 rounded-xl transition-all relative ${
             theme === 'dark' ? 'bg-slate-900 border border-slate-800 text-emerald-400' : 'bg-slate-100 border border-slate-200 text-emerald-600'
           }`}>
             <Menu className="w-5 h-5 stroke-[2.2px]" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-rose-600 text-white text-[8px] font-black min-w-[14px] h-[14px] px-0.5 rounded-full flex items-center justify-center border border-white dark:border-slate-950 shadow-xs animate-pulse">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            )}
           </div>
           <span className="text-[10px] mt-0.5 font-bold tracking-tight text-emerald-500">
             More Tools
