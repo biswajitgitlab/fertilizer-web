@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Bell, Truck, Sparkles, Sprout, ChevronRight, X, Copy, Check } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useUIStore } from '../../store/uiStore';
+import { useAuthStore } from '../../store/authStore';
 import { userNotificationApi, UserNotification } from '../../api/userNotificationApi';
+import { orderApi } from '../../api/orderApi';
 import { useCart } from '../../hooks/useCart';
 
 export const MobileHomeNotificationBar: React.FC = () => {
+  const navigate = useNavigate();
   const { openNotifWithFilter } = useUIStore();
+  const { isAuthenticated } = useAuthStore();
   const { applyCoupon } = useCart();
   const [notifications, setNotifications] = useState<UserNotification[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -21,19 +26,74 @@ export const MobileHomeNotificationBar: React.FC = () => {
     }
 
     const load = async () => {
+      let activeOrderNotifs: UserNotification[] = [];
+
+      // 1. If authenticated, check for REAL active orders out for delivery or shipped
+      if (isAuthenticated) {
+        try {
+          const myOrders = await orderApi.getMyOrders();
+          const list: any[] = Array.isArray(myOrders) ? myOrders : (myOrders?.data || []);
+
+          // Find active orders currently out for delivery or shipped
+          const activeDeliveryOrder = list.find((o: any) => {
+            const s = (o.status || '').toUpperCase().replace(/\s+/g, '_');
+            return (s === 'OUT_FOR_DELIVERY' || s === 'SHIPPED') && !o.deliveredAt && !o.delivered_at && !o.cancelledAt && !o.cancelled_at;
+          });
+
+          if (activeDeliveryOrder) {
+            const rawStatus = (activeDeliveryOrder.status || '').toUpperCase().replace(/\s+/g, '_');
+            const isOFD = rawStatus === 'OUT_FOR_DELIVERY';
+            const orderNum = activeDeliveryOrder.orderNumber || activeDeliveryOrder.order_number || activeDeliveryOrder.id;
+            const driverName = activeDeliveryOrder.driverName || activeDeliveryOrder.driver?.name;
+
+            activeOrderNotifs.push({
+              id: `live-order-${activeDeliveryOrder.id}`,
+              title: `Order #${orderNum} ${isOFD ? 'Out for Delivery 🚚' : 'Dispatched & On the Way 📦'}`,
+              message: driverName
+                ? `Delivery agent ${driverName} is heading to your farm with your order.`
+                : isOFD
+                  ? 'Your fertilizer and farm inputs are out for farm delivery today.'
+                  : 'Your shipment has been dispatched from our regional agri-hub.',
+              category: 'order',
+              type: 'order_status',
+              time: 'Live Update',
+              unread: true,
+              link: `/orders/${activeDeliveryOrder.id}`,
+              actionLabel: 'Track',
+              actionLink: `/orders/${activeDeliveryOrder.id}`,
+              badgeText: isOFD ? 'Out for Delivery' : 'In Transit'
+            });
+          }
+        } catch (e) {
+          console.error('Failed to check active delivery orders:', e);
+        }
+      }
+
+      // 2. Fetch standard broadcast or user notifications
       try {
-        const res = await userNotificationApi.getNotifications();
-        if (res && Array.isArray(res.notifications) && res.notifications.length > 0) {
-          // Prioritize unread notifications, or show all
-          const unreadOrAll = res.notifications.filter(n => n.unread);
-          setNotifications(unreadOrAll.length > 0 ? unreadOrAll : res.notifications);
+        const res = await userNotificationApi.getNotifications(isAuthenticated);
+        let items = Array.isArray(res.notifications) ? res.notifications : [];
+
+        // Extra guard: guest visitors must never see personal order notifications
+        if (!isAuthenticated) {
+          items = items.filter(n => n.category !== 'order');
+        }
+
+        // Combine live order updates with general broadcast notifications
+        const combined = [...activeOrderNotifs, ...items];
+        if (combined.length > 0) {
+          const unreadOrAll = combined.filter(n => n.unread);
+          setNotifications(unreadOrAll.length > 0 ? unreadOrAll : combined);
         }
       } catch {
-        // Fallback handled inside userNotificationApi
+        if (activeOrderNotifs.length > 0) {
+          setNotifications(activeOrderNotifs);
+        }
       }
     };
+
     load();
-  }, []);
+  }, [isAuthenticated]);
 
   // Auto-rotate if multiple notifications exist
   useEffect(() => {
@@ -118,13 +178,22 @@ export const MobileHomeNotificationBar: React.FC = () => {
 
   const theme = getCategoryTheme();
 
+  const handleBannerClick = () => {
+    const targetUrl = current?.actionLink || current?.link;
+    if (targetUrl) {
+      navigate(targetUrl);
+    } else {
+      openNotifWithFilter(theme.filter);
+    }
+  };
+
   return (
     <div className="md:hidden w-full px-3 pt-2 pb-1 relative z-30">
       <motion.div
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        onClick={() => openNotifWithFilter(theme.filter)}
+        onClick={handleBannerClick}
         className={`relative overflow-hidden rounded-2xl bg-gradient-to-r ${theme.bg} border ${theme.border} p-2.5 shadow-lg shadow-black/25 backdrop-blur-xl cursor-pointer active:scale-[0.99] transition-transform`}
       >
         {/* Subtle decorative shimmer */}
@@ -187,7 +256,7 @@ export const MobileHomeNotificationBar: React.FC = () => {
               </button>
             ) : (
               <span className="inline-flex items-center gap-0.5 text-[10px] font-black text-emerald-400 dark:text-emerald-300 bg-white/10 hover:bg-white/20 px-2 py-1 rounded-xl border border-white/10 transition-colors">
-                <span>View</span>
+                <span>{current.actionLabel || 'View'}</span>
                 <ChevronRight className="w-3 h-3" />
               </span>
             )}

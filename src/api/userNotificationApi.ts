@@ -46,28 +46,15 @@ const saveReadIds = (ids: Set<string>) => {
   }
 };
 
-// High-converting, realistic e-commerce seed notifications for farmers & shoppers
-const FALLBACK_SEEDS: UserNotification[] = [
-  {
-    id: 'notif-order-8291',
-    title: 'Order #SF-8291 Out for Delivery 🚚',
-    message: 'Your IFFCO NPK 19-19-19 (50kg) and Chelated Zinc bag is out for farm delivery with AgriExpress today.',
-    category: 'order',
-    type: 'order_status',
-    time: '18m ago',
-    unread: true,
-    link: '/orders',
-    actionLabel: 'Track Delivery',
-    actionLink: '/orders',
-    badgeText: 'Out for Delivery'
-  },
+// High-converting, realistic public e-commerce broadcast notifications for farmers & shoppers
+export const GUEST_BROADCAST_SEEDS: UserNotification[] = [
   {
     id: 'notif-offer-newfarmer',
     title: 'Special Farmer Discount: ₹150 OFF 🏷️',
     message: 'Use code NEWFARMER on orders above ₹499. Valid on water-soluble fertilizers and pest sprays today.',
     category: 'offer',
     type: 'coupon',
-    time: '1h ago',
+    time: 'Today',
     unread: true,
     couponCode: 'NEWFARMER',
     link: '/products',
@@ -104,8 +91,21 @@ const FALLBACK_SEEDS: UserNotification[] = [
 ];
 
 export const userNotificationApi = {
-  getNotifications: async (): Promise<UserNotificationsResponse> => {
+  getNotifications: async (isAuthenticated = true): Promise<UserNotificationsResponse> => {
     const readIds = getReadIds();
+
+    // Guest users should immediately receive broadcast notifications without failing API calls
+    if (!isAuthenticated) {
+      const guestNotifications = GUEST_BROADCAST_SEEDS.map((n) => ({
+        ...n,
+        unread: readIds.has(n.id) ? false : Boolean(n.unread)
+      }));
+      return {
+        notifications: guestNotifications,
+        unread_count: guestNotifications.filter((n) => n.unread).length
+      };
+    }
+
     let backendNotifications: UserNotification[] = [];
 
     try {
@@ -114,11 +114,11 @@ export const userNotificationApi = {
         backendNotifications = res.data.notifications;
       }
     } catch {
-      // Backend offline or unauthenticated -> fallback gracefully
+      // Backend offline or unauthenticated -> fallback gracefully to broadcast announcements
     }
 
-    // If backend provided notifications, use them; otherwise use rich contextual seeds
-    const sourceList = backendNotifications.length > 0 ? backendNotifications : FALLBACK_SEEDS;
+    // Use backend notifications if available; otherwise use safe broadcast seeds (never fake personal orders)
+    const sourceList = backendNotifications.length > 0 ? backendNotifications : GUEST_BROADCAST_SEEDS;
 
     const mergedNotifications = sourceList.map((n) => {
       const isMarkedRead = readIds.has(n.id);
@@ -153,7 +153,7 @@ export const userNotificationApi = {
     if (notificationIds && notificationIds.length > 0) {
       notificationIds.forEach((id) => readIds.add(id));
     } else {
-      FALLBACK_SEEDS.forEach((n) => readIds.add(n.id));
+      GUEST_BROADCAST_SEEDS.forEach((n) => readIds.add(n.id));
     }
     saveReadIds(readIds);
 

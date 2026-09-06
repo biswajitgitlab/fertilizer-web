@@ -21,6 +21,7 @@ import {
 } from './AnimatedIcons';
 import { productApi } from '../../api/productApi';
 import { userNotificationApi, UserNotification } from '../../api/userNotificationApi';
+import { orderApi } from '../../api/orderApi';
 import { echo } from '../../utils/echo';
 import { Logo } from './Logo';
 import { TopCouponMarquee } from './TopCouponMarquee';
@@ -72,9 +73,56 @@ export const Navbar: React.FC = () => {
 
   const fetchNotifications = async () => {
     if (isAdmin) return;
-    const res = await userNotificationApi.getNotifications();
-    setNotifications(Array.isArray(res.notifications) ? res.notifications : []);
-    setUnreadCount(typeof res.unread_count === 'number' ? res.unread_count : 0);
+    try {
+      const res = await userNotificationApi.getNotifications(isAuthenticated);
+      let items = Array.isArray(res.notifications) ? res.notifications : [];
+
+      if (!isAuthenticated) {
+        items = items.filter(n => n.category !== 'order');
+      } else {
+        // Integrate real active orders in transit for authenticated user
+        try {
+          const myOrders = await orderApi.getMyOrders();
+          const list: any[] = Array.isArray(myOrders) ? myOrders : (myOrders?.data || []);
+          const activeDeliveryOrder = list.find((o: any) => {
+            const s = (o.status || '').toUpperCase().replace(/\s+/g, '_');
+            return (s === 'OUT_FOR_DELIVERY' || s === 'SHIPPED') && !o.deliveredAt && !o.delivered_at && !o.cancelledAt && !o.cancelled_at;
+          });
+
+          if (activeDeliveryOrder && !items.some(n => n.id === `live-order-${activeDeliveryOrder.id}`)) {
+            const rawStatus = (activeDeliveryOrder.status || '').toUpperCase().replace(/\s+/g, '_');
+            const isOFD = rawStatus === 'OUT_FOR_DELIVERY';
+            const orderNum = activeDeliveryOrder.orderNumber || activeDeliveryOrder.order_number || activeDeliveryOrder.id;
+            const driverName = activeDeliveryOrder.driverName || activeDeliveryOrder.driver?.name;
+
+            items.unshift({
+              id: `live-order-${activeDeliveryOrder.id}`,
+              title: `Order #${orderNum} ${isOFD ? 'Out for Delivery 🚚' : 'Dispatched & On the Way 📦'}`,
+              message: driverName
+                ? `Delivery agent ${driverName} is on the way to your farm with your order.`
+                : isOFD
+                  ? 'Your fertilizer order is out for farm delivery today.'
+                  : 'Your shipment is in transit from our regional agri-hub.',
+              category: 'order',
+              type: 'order_status',
+              time: 'Live Update',
+              unread: true,
+              link: `/orders/${activeDeliveryOrder.id}`,
+              actionLabel: 'Track Delivery',
+              actionLink: `/orders/${activeDeliveryOrder.id}`,
+              badgeText: isOFD ? 'Out for Delivery' : 'In Transit'
+            });
+          }
+        } catch (e) {
+          console.error('Navbar live order fetch error:', e);
+        }
+      }
+
+      setNotifications(items);
+      setUnreadCount(items.filter(n => n.unread).length);
+    } catch {
+      setNotifications([]);
+    }
   };
 
   useEffect(() => {
@@ -532,7 +580,7 @@ export const Navbar: React.FC = () => {
                                 {notifFilter === 'unread' 
                                   ? 'All caught up!' 
                                   : notifFilter === 'orders' 
-                                    ? 'No active orders yet' 
+                                    ? (!isAuthenticated ? 'Sign in to track orders' : 'No active orders yet') 
                                     : notifFilter === 'offers'
                                       ? 'No active promo codes right now'
                                       : notifFilter === 'advisory'
@@ -543,7 +591,9 @@ export const Navbar: React.FC = () => {
                                 {notifFilter === 'unread'
                                   ? 'You have reviewed all store and order notifications.'
                                   : notifFilter === 'orders'
-                                    ? 'Order dispatch alerts, invoice updates, and tracking will appear here.'
+                                    ? (!isAuthenticated
+                                        ? 'Log in with your mobile number or email to view live dispatch tracking and invoices.'
+                                        : 'Order dispatch alerts, invoice updates, and tracking will appear here.')
                                     : notifFilter === 'offers'
                                       ? 'Seasonal fertilizer discounts and cashbacks will appear here.'
                                       : notifFilter === 'advisory'
@@ -555,13 +605,23 @@ export const Navbar: React.FC = () => {
                             {/* Action CTA depending on tab */}
                             <div className="pt-2">
                               {notifFilter === 'orders' ? (
-                                <button
-                                  type="button"
-                                  onClick={() => { setNotifOpen(false); navigate('/products'); }}
-                                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs px-4 py-2 rounded-xl transition-all shadow-xs"
-                                >
-                                  Browse Store Inputs
-                                </button>
+                                !isAuthenticated ? (
+                                  <button
+                                    type="button"
+                                    onClick={() => { setNotifOpen(false); navigate('/login'); }}
+                                    className="bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs px-4 py-2 rounded-xl transition-all shadow-xs cursor-pointer"
+                                  >
+                                    Sign In to Account
+                                  </button>
+                                ) : (
+                                  <button
+                                    type="button"
+                                    onClick={() => { setNotifOpen(false); navigate('/products'); }}
+                                    className="bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs px-4 py-2 rounded-xl transition-all shadow-xs cursor-pointer"
+                                  >
+                                    Browse Store Inputs
+                                  </button>
+                                )
                               ) : notifFilter === 'advisory' ? (
                                 <button
                                   type="button"
