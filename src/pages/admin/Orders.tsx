@@ -12,6 +12,7 @@ import toast from 'react-hot-toast';
 
 import { useAuthStore } from '../../store/authStore';
 import { Loader } from '../../components/common/Loader';
+import { Select } from '../../components/common/Select';
 export const Orders: React.FC = () => {
   const user = useAuthStore(state => state.user);
   const isDriver = (user?.role || '').toLowerCase().includes('driver');
@@ -162,15 +163,17 @@ export const Orders: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            <select
+            <Select
               value={perPage}
               onChange={(e) => { setPerPage(Number(e.target.value)); setPage(1); }}
-              className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 rounded-xl px-3 py-2 font-bold focus:outline-none cursor-pointer"
-            >
-              <option value={10}>10 / page</option>
-              <option value={25}>25 / page</option>
-              <option value={50}>50 / page</option>
-            </select>
+              sizeVariant="sm"
+              className="font-bold w-28"
+              options={[
+                { value: 10, label: '10 / page' },
+                { value: 25, label: '25 / page' },
+                { value: 50, label: '50 / page' }
+              ]}
+            />
           </div>
         </div>
 

@@ -6,6 +6,7 @@ import { INDIAN_STATES } from '../utils/constants';
 import toast from 'react-hot-toast';
 import { Logo } from '../components/common/Logo';
 import { PasswordInput } from '../components/common/PasswordInput';
+import { Select } from '../components/common/Select';
 import { useSiteSettingsStore } from '../store/siteSettingsStore';
 
 export const Register: React.FC = () => {
@@ -192,22 +193,15 @@ export const Register: React.FC = () => {
             </div>
 
             {/* State */}
-            <div className="space-y-1.5">
-              <label className="block text-xs font-bold text-emerald-300 uppercase tracking-wider">State *</label>
-              <div className="relative">
-                <MapPin className="w-4 h-4 text-emerald-400 absolute left-3.5 top-3.5 pointer-events-none" />
-                <select
-                  value={state}
-                  onChange={(e) => setState(e.target.value)}
-                  required
-                  className="w-full pl-10 pr-4 py-3 text-sm bg-slate-950 border border-emerald-500/30 rounded-xl text-white focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/20 transition-all appearance-none"
-                >
-                  {INDIAN_STATES.map((s) => (
-                    <option key={s} value={s} className="bg-slate-900 text-white">{s}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
+            <Select
+              label="State"
+              value={state}
+              onChange={(e) => setState(e.target.value)}
+              required
+              icon={<MapPin className="w-4 h-4 text-emerald-400" />}
+              className="py-3 bg-slate-950 border-emerald-500/30 text-white focus:border-emerald-400"
+              options={INDIAN_STATES.map((s) => ({ value: s, label: s }))}
+            />
 
             {/* Password */}
             <div className="space-y-1.5">

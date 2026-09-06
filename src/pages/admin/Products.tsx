@@ -7,6 +7,7 @@ import { Product } from '../../types';
 import { Plus, Search, Edit2, Trash2, ChevronLeft, ChevronRight, RefreshCw, X, Cpu } from 'lucide-react';
 import { formatCurrency } from '../../utils/formatters';
 import { Loader } from '../../components/common/Loader';
+import { Select } from '../../components/common/Select';
 import toast from 'react-hot-toast';
 
 const DEFAULT_PRODUCT_IMG = 'https://images.unsplash.com/photo-1585314062340-f1a5a7c9328d?auto=format&fit=crop&q=80&w=300';
@@ -164,18 +165,20 @@ export const Products: React.FC = () => {
           <div className="flex items-center gap-3 w-full sm:w-auto justify-end text-xs">
             <div className="flex items-center gap-1.5 shrink-0">
               <span className="text-slate-500 font-medium">Per Page:</span>
-              <select
+              <Select
                 value={perPage}
                 onChange={(e) => {
                   setPerPage(Number(e.target.value));
                   setPage(1);
                 }}
-                className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 rounded-xl px-3 py-2 font-bold focus:outline-none cursor-pointer"
-              >
-                <option value={10}>10 / page</option>
-                <option value={24}>24 / page</option>
-                <option value={50}>50 / page</option>
-              </select>
+                sizeVariant="sm"
+                className="font-bold w-28"
+                options={[
+                  { value: 10, label: '10 / page' },
+                  { value: 24, label: '24 / page' },
+                  { value: 50, label: '50 / page' }
+                ]}
+              />
             </div>
           </div>
         </div>

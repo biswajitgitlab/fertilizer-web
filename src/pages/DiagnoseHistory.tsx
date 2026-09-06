@@ -6,6 +6,7 @@ import { Stethoscope, ArrowRight, ShieldCheck, Clock, Search, Filter } from 'luc
 import { useAuthStore } from '../store/authStore';
 import { Pagination } from '../components/common/Pagination';
 import { Loader } from '../components/common/Loader';
+import { Select } from '../components/common/Select';
 
 export const DiagnoseHistory: React.FC = () => {
   const [history, setHistory] = useState<Diagnosis[]>([]);
@@ -95,33 +96,33 @@ export const DiagnoseHistory: React.FC = () => {
 
           <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
             <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-slate-400">
-              <Filter className="w-3.5 h-3.5" />
-              <span>Crop:</span>
-              <select
+              <Filter className="w-3.5 h-3.5 shrink-0" />
+              <span className="shrink-0">Crop:</span>
+              <Select
                 value={filterCrop}
                 onChange={(e) => setFilterCrop(e.target.value)}
-                className="bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-xs text-gray-900 dark:text-white rounded-lg px-2.5 py-1.5 focus:outline-none"
-              >
-                <option value="all">All Crops</option>
-                {uniqueCrops.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </select>
+                sizeVariant="sm"
+                className="w-32"
+                options={[
+                  { value: 'all', label: 'All Crops' },
+                  ...uniqueCrops.map((c) => ({ value: c, label: c }))
+                ]}
+              />
             </div>
 
             <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-slate-400">
-              <span>Per page:</span>
-              <select
+              <span className="shrink-0">Per page:</span>
+              <Select
                 value={itemsPerPage}
                 onChange={(e) => setItemsPerPage(Number(e.target.value))}
-                className="bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-xs text-gray-900 dark:text-white rounded-lg px-2 py-1.5 focus:outline-none"
-              >
-                <option value={5}>5</option>
-                <option value={10}>10</option>
-                <option value={20}>20</option>
-              </select>
+                sizeVariant="sm"
+                className="w-20"
+                options={[
+                  { value: 5, label: '5' },
+                  { value: 10, label: '10' },
+                  { value: 20, label: '20' }
+                ]}
+              />
             </div>
           </div>
         </div>

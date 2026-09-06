@@ -2,6 +2,7 @@ import React from 'react';
 import { ShippingAddress } from '../../types';
 import { INDIAN_STATES } from '../../utils/constants';
 import { Input } from '../common/Input';
+import { Select } from '../common/Select';
 import { Button } from '../common/Button';
 
 interface AddressFormProps {
@@ -84,19 +85,13 @@ export const AddressForm: React.FC<AddressFormProps> = ({
           required
         />
 
-        <div className="space-y-1.5">
-          <label className="block text-xs font-semibold text-gray-700 dark:text-slate-300">State *</label>
-          <select
-            value={address.state}
-            onChange={(e) => handleChange('state', e.target.value)}
-            className="w-full text-sm bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-            required
-          >
-            {INDIAN_STATES.map((s) => (
-              <option key={s} value={s} className="bg-white dark:bg-slate-900 text-gray-900 dark:text-white">{s}</option>
-            ))}
-          </select>
-        </div>
+        <Select
+          label="State"
+          value={address.state}
+          onChange={(e) => handleChange('state', e.target.value)}
+          required
+          options={INDIAN_STATES.map((s) => ({ value: s, label: s }))}
+        />
       </div>
 
       <div className="pt-4 flex flex-col sm:flex-row justify-end">

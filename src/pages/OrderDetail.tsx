@@ -8,6 +8,7 @@ import { formatCurrency, formatDate } from '../utils/formatters';
 import { ArrowLeft, Package, MapPin, CreditCard, ShieldCheck, XCircle, AlertCircle, CheckCircle2, RotateCcw } from 'lucide-react';
 import { PaymentModal } from '../components/checkout/PaymentModal';
 import { Loader } from '../components/common/Loader';
+import { Select } from '../components/common/Select';
 import { echo } from '../utils/echo';
 
 const normalizeOrder = (raw: any): Order | null => {
@@ -397,21 +398,19 @@ export const OrderDetail: React.FC = () => {
               </div>
             )}
 
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-gray-700 dark:text-slate-300">Cancellation Reason</label>
-              <select
-                value={cancellationReason}
-                onChange={(e) => setCancellationReason(e.target.value)}
-                className="w-full p-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-xs font-medium text-gray-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-rose-500"
-              >
-                <option value="Changed mind / No longer needed">Changed mind / No longer needed</option>
-                <option value="Ordered wrong product or quantity">Ordered wrong product or quantity</option>
-                <option value="Delivery address or contact error">Delivery address or contact error</option>
-                <option value="Delivery takes too long">Delivery takes too long</option>
-                <option value="Found better price elsewhere">Found better price elsewhere</option>
-                <option value="Other reason">Other reason</option>
-              </select>
-            </div>
+            <Select
+              label="Cancellation Reason"
+              value={cancellationReason}
+              onChange={(e) => setCancellationReason(e.target.value)}
+              options={[
+                { value: 'Changed mind / No longer needed', label: 'Changed mind / No longer needed' },
+                { value: 'Ordered wrong product or quantity', label: 'Ordered wrong product or quantity' },
+                { value: 'Delivery address or contact error', label: 'Delivery address or contact error' },
+                { value: 'Delivery takes too long', label: 'Delivery takes too long' },
+                { value: 'Found better price elsewhere', label: 'Found better price elsewhere' },
+                { value: 'Other reason', label: 'Other reason' }
+              ]}
+            />
 
             <div className="flex items-center justify-end gap-3 pt-3 border-t border-gray-100 dark:border-slate-800">
               <button

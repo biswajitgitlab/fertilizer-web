@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search, User, Globe, Menu, X,
-  LogOut, Package, Calendar, Stethoscope, ChevronDown, LayoutDashboard, Sun, Moon, Sprout,
+  LogOut, Package, Calendar, Stethoscope, ChevronDown, ChevronRight, LayoutDashboard, Sun, Moon, Sprout,
   Bell, CheckCheck, Clock, Truck, Tag, Sparkles, AlertCircle, Copy, Check, ArrowRight, ShieldCheck
 } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -43,6 +43,20 @@ export const Navbar: React.FC = () => {
   }, [location.pathname]);
 
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const userDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close user dropdown on outside click
+  useEffect(() => {
+    if (!userDropdownOpen) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (userDropdownRef.current && !userDropdownRef.current.contains(e.target as Node)) {
+        setUserDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [userDropdownOpen]);
+
   const [notifications, setNotifications] = useState<UserNotification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
@@ -83,7 +97,7 @@ export const Navbar: React.FC = () => {
         // Integrate real active orders in transit for authenticated user
         try {
           const myOrders = await orderApi.getMyOrders();
-          const list: any[] = Array.isArray(myOrders) ? myOrders : (myOrders?.data || []);
+          const list: any[] = Array.isArray(myOrders) ? myOrders : ((myOrders as any)?.data || []);
           const activeDeliveryOrder = list.find((o: any) => {
             const s = (o.status || '').toUpperCase().replace(/\s+/g, '_');
             return (s === 'OUT_FOR_DELIVERY' || s === 'SHIPPED') && !o.deliveredAt && !o.delivered_at && !o.cancelledAt && !o.cancelled_at;
@@ -779,79 +793,220 @@ export const Navbar: React.FC = () => {
                 </button>
 
                 {userDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-60 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-gray-100 dark:border-slate-800 py-2 z-50 animate-fade-in text-gray-900 dark:text-white">
-                    <div className="px-4 py-2 border-b border-gray-100 dark:border-slate-800">
-                      <p className="text-xs text-gray-400 dark:text-slate-400 font-medium">Logged in as</p>
-                      <p className="text-sm font-bold text-gray-900 dark:text-white truncate">{user?.name}</p>
-                      <p className="text-xs text-gray-500 dark:text-slate-400">{user?.phone || user?.email}</p>
-                      {isAdmin && (
-                        <span className="inline-flex items-center gap-1 mt-1 bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-full">
-                          <AnimatedShield size={12} className="text-amber-500" />
-                          Administrator
+                  <div
+                    ref={userDropdownRef}
+                    className="absolute right-0 mt-2.5 w-72 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl rounded-2xl shadow-2xl border border-slate-200/90 dark:border-slate-800/90 p-2.5 z-50 animate-in fade-in slide-in-from-top-2 zoom-in-95 duration-150 text-gray-900 dark:text-white"
+                  >
+                    {/* User Header Profile Card */}
+                    <div className="p-3 bg-gradient-to-br from-emerald-500/10 via-teal-500/10 to-transparent dark:from-emerald-950/40 dark:via-teal-950/20 dark:to-transparent rounded-xl border border-emerald-500/20 mb-2">
+                      <div className="flex items-center gap-3">
+                        <div className="relative">
+                          <div className={`w-10 h-10 rounded-xl font-black flex items-center justify-center text-sm shadow-md ${
+                            isAdmin
+                              ? 'bg-gradient-to-tr from-amber-600 to-amber-400 text-white shadow-amber-500/20'
+                              : 'bg-gradient-to-tr from-emerald-600 to-teal-500 text-white shadow-emerald-500/20'
+                          }`}>
+                            {user?.name?.[0] || 'F'}
+                          </div>
+                          <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 border-2 border-white dark:border-slate-900 rounded-full" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-1.5">
+                            <p className="text-xs font-black text-slate-900 dark:text-white truncate">{user?.name}</p>
+                            {isAdmin && (
+                              <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.2 bg-amber-500/15 text-amber-700 dark:text-amber-300 rounded border border-amber-500/30 shrink-0">
+                                Admin
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">{user?.phone || user?.email}</p>
+                        </div>
+                      </div>
+
+                      <div className="mt-2.5 pt-2 border-t border-emerald-500/15 flex items-center justify-between text-[10px]">
+                        <span className="text-slate-500 dark:text-slate-400 font-medium">Account Status</span>
+                        <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-bold">
+                          <ShieldCheck className="w-3 h-3" />
+                          {isAdmin ? 'Store Executive' : 'Verified Grower'}
                         </span>
-                      )}
+                      </div>
                     </div>
 
-                    {/* Admin sees ONLY admin dashboard link */}
+                    {/* Admin sees admin dashboard item */}
                     {isAdmin ? (
-                      <Link
-                        to="/admin/dashboard"
-                        onClick={() => setUserDropdownOpen(false)}
-                        className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-amber-700 dark:text-amber-300 font-semibold hover:bg-amber-50 dark:hover:bg-slate-800 transition-colors"
-                      >
-                        <LayoutDashboard className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                        <span>Admin Dashboard</span>
-                      </Link>
+                      <div className="space-y-1">
+                        <div className="px-2 py-1 text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                          Management
+                        </div>
+                        <Link
+                          to="/admin/dashboard"
+                          onClick={() => setUserDropdownOpen(false)}
+                          className="group flex items-center justify-between p-2 rounded-xl transition-all hover:bg-amber-50 dark:hover:bg-amber-950/30 cursor-pointer"
+                        >
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <div className="w-8 h-8 rounded-lg bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 group-hover:bg-amber-500 group-hover:text-white group-hover:scale-105 transition-all shadow-2xs">
+                              <LayoutDashboard className="w-4 h-4" />
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-xs font-bold text-slate-800 dark:text-slate-100 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+                                Admin Dashboard
+                              </p>
+                              <p className="text-[10px] text-slate-400 dark:text-slate-500 truncate">
+                                Store metrics, orders & inventory
+                              </p>
+                            </div>
+                          </div>
+                          <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-amber-600 dark:group-hover:text-amber-400 group-hover:translate-x-0.5 transition-all opacity-40 group-hover:opacity-100" />
+                        </Link>
+                      </div>
                     ) : (
-                      /* Customer-only links */
-                      <>
-                        <Link
-                          to="/profile"
-                          onClick={() => setUserDropdownOpen(false)}
-                          className="flex items-center gap-2.5 px-4 py-2 text-sm text-gray-700 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
-                        >
-                          <User className="w-4 h-4 text-gray-400 dark:text-slate-400" />
-                          <span>{t('nav_profile')}</span>
-                        </Link>
+                      /* Customer Hub */
+                      <div className="space-y-2">
+                        {/* Section: Account & Orders */}
+                        <div className="space-y-1">
+                          <div className="px-2 pt-0.5 text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                            Account & Orders
+                          </div>
 
-                        <Link
-                          to="/orders"
-                          onClick={() => setUserDropdownOpen(false)}
-                          className="flex items-center gap-2.5 px-4 py-2 text-sm text-gray-700 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
-                        >
-                          <Package className="w-4 h-4 text-gray-400 dark:text-slate-400" />
-                          <span>{t('nav_orders')}</span>
-                        </Link>
+                          <Link
+                            to="/profile"
+                            onClick={() => setUserDropdownOpen(false)}
+                            className="group flex items-center justify-between p-2 rounded-xl transition-all hover:bg-emerald-50/70 dark:hover:bg-slate-800/80 cursor-pointer"
+                          >
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 group-hover:bg-emerald-600 group-hover:text-white group-hover:scale-105 transition-all shadow-2xs">
+                                <User className="w-4 h-4" />
+                              </div>
+                              <div className="min-w-0">
+                                <p className="text-xs font-bold text-slate-800 dark:text-slate-100 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                                  {t('nav_profile')}
+                                </p>
+                                <p className="text-[10px] text-slate-400 dark:text-slate-500 truncate">
+                                  Farm details, crops & addresses
+                                </p>
+                              </div>
+                            </div>
+                            <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 group-hover:translate-x-0.5 transition-all opacity-40 group-hover:opacity-100" />
+                          </Link>
 
-                        <Link
-                          to="/diagnose"
-                          onClick={() => setUserDropdownOpen(false)}
-                          className="flex items-center gap-2.5 px-4 py-2 text-sm text-gray-700 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
-                        >
-                          <Stethoscope className="w-4 h-4 text-gray-400 dark:text-slate-400" />
-                          <span>Crop Diagnosis</span>
-                        </Link>
+                          <Link
+                            to="/orders"
+                            onClick={() => setUserDropdownOpen(false)}
+                            className="group flex items-center justify-between p-2 rounded-xl transition-all hover:bg-blue-50/70 dark:hover:bg-slate-800/80 cursor-pointer"
+                          >
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <div className="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 group-hover:bg-blue-600 group-hover:text-white group-hover:scale-105 transition-all shadow-2xs">
+                                <Package className="w-4 h-4" />
+                              </div>
+                              <div className="min-w-0">
+                                <p className="text-xs font-bold text-slate-800 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                                  {t('nav_orders')}
+                                </p>
+                                <p className="text-[10px] text-slate-400 dark:text-slate-500 truncate">
+                                  Live dispatch tracking & invoices
+                                </p>
+                              </div>
+                            </div>
+                            <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 group-hover:translate-x-0.5 transition-all opacity-40 group-hover:opacity-100" />
+                          </Link>
+                        </div>
 
-                        <Link
-                          to="/planner"
-                          onClick={() => setUserDropdownOpen(false)}
-                          className="flex items-center gap-2.5 px-4 py-2 text-sm text-gray-700 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
-                        >
-                          <Calendar className="w-4 h-4 text-gray-400 dark:text-slate-400" />
-                          <span>Farm Planner</span>
-                        </Link>
-                      </>
+                        {/* Section: Farming Tools */}
+                        <div className="space-y-1 pt-1 border-t border-slate-100 dark:border-slate-800/80">
+                          <div className="px-2 pt-1 text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                            Smart Farming Tools
+                          </div>
+
+                          <Link
+                            to="/diagnose"
+                            onClick={() => setUserDropdownOpen(false)}
+                            className="group flex items-center justify-between p-2 rounded-xl transition-all hover:bg-purple-50/70 dark:hover:bg-slate-800/80 cursor-pointer"
+                          >
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <div className="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0 group-hover:bg-purple-600 group-hover:text-white group-hover:scale-105 transition-all shadow-2xs">
+                                <Sparkles className="w-4 h-4" />
+                              </div>
+                              <div className="min-w-0">
+                                <div className="flex items-center gap-1.5">
+                                  <p className="text-xs font-bold text-slate-800 dark:text-slate-100 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
+                                    Crop Doctor AI
+                                  </p>
+                                  <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.2 rounded-md bg-purple-500/15 text-purple-700 dark:text-purple-300 border border-purple-500/20">
+                                    AI
+                                  </span>
+                                </div>
+                                <p className="text-[10px] text-slate-400 dark:text-slate-500 truncate">
+                                  Scan leaf photo for instant cure
+                                </p>
+                              </div>
+                            </div>
+                            <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-purple-600 dark:group-hover:text-purple-400 group-hover:translate-x-0.5 transition-all opacity-40 group-hover:opacity-100" />
+                          </Link>
+
+                          <Link
+                            to="/planner"
+                            onClick={() => setUserDropdownOpen(false)}
+                            className="group flex items-center justify-between p-2 rounded-xl transition-all hover:bg-amber-50/70 dark:hover:bg-slate-800/80 cursor-pointer"
+                          >
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <div className="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 group-hover:bg-amber-600 group-hover:text-white group-hover:scale-105 transition-all shadow-2xs">
+                                <Calendar className="w-4 h-4" />
+                              </div>
+                              <div className="min-w-0">
+                                <p className="text-xs font-bold text-slate-800 dark:text-slate-100 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+                                  Farm Planner
+                                </p>
+                                <p className="text-[10px] text-slate-400 dark:text-slate-500 truncate">
+                                  Dosage calendar & seasonal tasks
+                                </p>
+                              </div>
+                            </div>
+                            <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-amber-600 dark:group-hover:text-amber-400 group-hover:translate-x-0.5 transition-all opacity-40 group-hover:opacity-100" />
+                          </Link>
+                        </div>
+                      </div>
                     )}
 
-                    <div className="border-t border-gray-100 dark:border-slate-800 my-1" />
+                    {/* Section: Preferences & Sign Out */}
+                    <div className="pt-2 mt-2 border-t border-slate-100 dark:border-slate-800/80 space-y-1">
+                      {/* Theme Mode Quick Row */}
+                      <button
+                        type="button"
+                        onClick={toggleTheme}
+                        className="w-full flex items-center justify-between p-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors cursor-pointer"
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300">
+                            {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
+                          </div>
+                          <div className="text-left">
+                            <p className="text-xs font-bold">Display Theme</p>
+                            <p className="text-[10px] text-slate-400">{theme === 'dark' ? 'Dark Mode' : 'Light Mode'}</p>
+                          </div>
+                        </div>
+                        <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-lg border border-emerald-500/20">
+                          Toggle
+                        </span>
+                      </button>
 
-                    <button
-                      onClick={handleLogout}
-                      className="w-full text-left flex items-center gap-2.5 px-4 py-2 text-sm text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors font-medium cursor-pointer"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      <span>Log Out</span>
-                    </button>
+                      {/* Log Out */}
+                      <button
+                        type="button"
+                        onClick={handleLogout}
+                        className="w-full flex items-center justify-between p-2 rounded-xl text-xs font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-all cursor-pointer group"
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-8 h-8 rounded-lg bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0 group-hover:bg-rose-600 group-hover:text-white transition-all shadow-2xs">
+                            <LogOut className="w-4 h-4" />
+                          </div>
+                          <div className="text-left">
+                            <p className="text-xs font-bold text-rose-600 dark:text-rose-400">Sign Out</p>
+                            <p className="text-[10px] text-slate-400 dark:text-slate-500 font-normal">Securely end session</p>
+                          </div>
+                        </div>
+                        <ArrowRight className="w-3.5 h-3.5 text-rose-400 opacity-40 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>

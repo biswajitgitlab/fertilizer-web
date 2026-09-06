@@ -32,7 +32,7 @@ export const MobileHomeNotificationBar: React.FC = () => {
       if (isAuthenticated) {
         try {
           const myOrders = await orderApi.getMyOrders();
-          const list: any[] = Array.isArray(myOrders) ? myOrders : (myOrders?.data || []);
+          const list: any[] = Array.isArray(myOrders) ? myOrders : ((myOrders as any)?.data || []);
 
           // Find active orders currently out for delivery or shipped
           const activeDeliveryOrder = list.find((o: any) => {

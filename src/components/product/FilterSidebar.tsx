@@ -3,6 +3,7 @@ import { CROPS_LIST } from '../../utils/constants';
 import { Category } from '../../types';
 import { Filter, X, RefreshCw } from 'lucide-react';
 import { Button } from '../common/Button';
+import { Select } from '../common/Select';
 
 interface FilterSidebarProps {
   categories: Category[];
@@ -91,19 +92,20 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
 
       {/* Sort By Filter */}
       <div>
-        <h4 className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-3">
+        <h4 className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-2">
           Sort By
         </h4>
-        <select
+        <Select
           value={sortBy}
           onChange={(e) => onChangeSortBy(e.target.value)}
-          className="w-full bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs font-medium text-gray-800 dark:text-white focus:outline-none focus:border-emerald-500"
-        >
-          <option value="featured" className="bg-white dark:bg-slate-900">Featured First</option>
-          <option value="price-low" className="bg-white dark:bg-slate-900">Price: Low to High</option>
-          <option value="price-high" className="bg-white dark:bg-slate-900">Price: High to Low</option>
-          <option value="rating" className="bg-white dark:bg-slate-900">Highest Customer Rating</option>
-        </select>
+          sizeVariant="sm"
+          options={[
+            { value: 'featured', label: 'Featured First', sublabel: 'Curated seasonal recommendations', badge: 'Top' },
+            { value: 'price-low', label: 'Price: Low to High', sublabel: 'Affordable inputs and bulk value' },
+            { value: 'price-high', label: 'Price: High to Low', sublabel: 'Specialty concentrates & premium grade' },
+            { value: 'rating', label: 'Highest Rating', sublabel: 'Verified 5-star grower satisfaction', badge: '4.8★' }
+          ]}
+        />
       </div>
 
       {/* Suitable Crops Filter */}
