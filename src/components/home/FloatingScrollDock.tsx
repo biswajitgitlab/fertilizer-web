@@ -70,7 +70,7 @@ export const FloatingScrollDock: React.FC = () => {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 30, scale: 0.9 }}
           transition={{ duration: 0.25, ease: 'easeOut' }}
-          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-1.5 p-1.5 bg-slate-900/90 hover:bg-slate-900 backdrop-blur-xl border border-white/15 rounded-full shadow-2xl text-white shadow-emerald-950/40"
+          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 hidden md:flex items-center gap-1.5 p-1.5 bg-slate-900/90 hover:bg-slate-900 backdrop-blur-xl border border-white/15 rounded-full shadow-2xl text-white shadow-emerald-950/40"
         >
           {/* Quick jump tabs (Mobile horizontal touch scrollable, desktop full pills) */}
           <div className="flex items-center gap-1 overflow-x-auto max-w-[65vw] sm:max-w-none scrollbar-none px-1 py-0.5">

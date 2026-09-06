@@ -7,6 +7,9 @@ interface UIState {
   theme: 'light' | 'dark';
   language: 'en' | 'hi';
   chatOpen: boolean;
+  notifOpen: boolean;
+  notifFilter: 'all' | 'orders' | 'offers' | 'advisory' | 'unread';
+  cartBannerDismissed: boolean;
   toggleSidebar: () => void;
   setSidebarOpen: (isOpen: boolean) => void;
   toggleSidebarCollapsed: () => void;
@@ -16,6 +19,11 @@ interface UIState {
   setLanguage: (lang: 'en' | 'hi') => void;
   toggleChat: () => void;
   setChatOpen: (isOpen: boolean) => void;
+  setNotifOpen: (isOpen: boolean) => void;
+  setNotifFilter: (filter: 'all' | 'orders' | 'offers' | 'advisory' | 'unread') => void;
+  openNotifWithFilter: (filter?: 'all' | 'orders' | 'offers' | 'advisory' | 'unread') => void;
+  toggleNotif: () => void;
+  setCartBannerDismissed: (dismissed: boolean) => void;
 }
 
 const applyTheme = (theme: 'light' | 'dark') => {
@@ -53,6 +61,9 @@ export const useUIStore = create<UIState>((set) => ({
   theme: initialTheme,
   language: (localStorage.getItem('language') as 'en' | 'hi') || 'en',
   chatOpen: false,
+  notifOpen: false,
+  notifFilter: 'all',
+  cartBannerDismissed: false,
 
   toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
   setSidebarOpen: (isOpen) => set({ sidebarOpen: isOpen }),
@@ -93,6 +104,11 @@ export const useUIStore = create<UIState>((set) => ({
   },
 
   toggleChat: () => set((state) => ({ chatOpen: !state.chatOpen })),
-  setChatOpen: (isOpen) => set({ chatOpen: isOpen })
+  setChatOpen: (isOpen) => set({ chatOpen: isOpen }),
+  setNotifOpen: (isOpen) => set({ notifOpen: isOpen }),
+  setNotifFilter: (filter) => set({ notifFilter: filter }),
+  openNotifWithFilter: (filter = 'all') => set({ notifOpen: true, notifFilter: filter }),
+  toggleNotif: () => set((state) => ({ notifOpen: !state.notifOpen })),
+  setCartBannerDismissed: (dismissed) => set({ cartBannerDismissed: dismissed })
 }));
 

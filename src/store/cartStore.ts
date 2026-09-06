@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { CartItem, Product } from '../types';
 import { cartApi } from '../api/cartApi';
+import { useUIStore } from './uiStore';
 
 interface CartState {
   items: CartItem[];
@@ -67,6 +68,7 @@ export const useCartStore = create<CartState>((set, get) => ({
         newItems = [...state.items, { product, quantity }];
       }
       saveCart(newItems);
+      useUIStore.getState().setCartBannerDismissed(false);
       return { items: newItems, isOpen: openDrawer ? true : state.isOpen };
     });
 

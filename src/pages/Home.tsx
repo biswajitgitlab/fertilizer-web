@@ -16,6 +16,7 @@ import { useSiteSettingsStore } from '../store/siteSettingsStore';
 import { DynamicCouponOfferBanner } from '../components/common/DynamicCouponOfferBanner';
 import { CategoryCarousel } from '../components/home/CategoryCarousel';
 import { ServicesCarousel } from '../components/home/ServicesCarousel';
+import { MobileHomeNotificationBar } from '../components/home/MobileHomeNotificationBar';
 
 // High-Conversion Interactive Scroll Components
 import { ScrollProgressBar } from '../components/home/ScrollProgressBar';
@@ -106,8 +107,11 @@ export const Home: React.FC = () => {
       {/* 2. FLOATING SCROLL NAVIGATION DOCK */}
       <FloatingScrollDock />
 
+      {/* 2.5 MOBILE IN-APP LIVE NOTIFICATION & ORDER BAR */}
+      <MobileHomeNotificationBar />
+
       {/* ─── 3. HERO SPOTLIGHT CAROUSEL & COUPON BANNER ─── */}
-      <section id="hero" ref={heroRef} className="w-full pt-3 sm:pt-6 pb-4 relative overflow-hidden min-h-[60vh] sm:min-h-[80vh]">
+      <section id="hero" ref={heroRef} className="w-full pt-2 sm:pt-6 pb-4 relative overflow-hidden min-h-[60vh] sm:min-h-[80vh]">
         <motion.div 
           className="absolute inset-0 bg-gradient-to-b from-emerald-500/5 to-transparent pointer-events-none"
           style={{ y: heroBgY }}
